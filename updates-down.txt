@@ -4,6 +4,43 @@
 # update-down.txt
 #
 #
+#In this update, `xboxdrv` gets a new daemon which supports more devices and auto-mounts them
 #
+#make directory where support lists will be held
+mkdir $HOME/.xboxdrv
 #
-# This file is currently a place-holder. Please do not modify unless necessary. 
+#download necessary files
+wget -O /bin/usb-scanner https://raw.githubusercontent.com/Batcastle/drauger-updates/master/usb-scanner
+wget -O $HOME/.xboxdrv/mounted.list https://raw.githubusercontent.com/Batcastle/drauger-updates/master/mounted.list
+wget -O $HOME/.xboxdrv/supported.list https://raw.githubusercontent.com/Batcastle/drauger-updates/master/supported.list
+wget -O $HOME/.xboxdrv/custom_add.list https://raw.githubusercontent.com/Batcastle/drauger-updates/master/custom_add.list
+#
+#make files executable
+chmod +x /bin/usb-scanner
+#
+#ask for the user's choice on whether they want usb-scanner daemon to start on startup
+echo "Would you like to add the new xboxdrv daemon to your startup apps? (Y/n)"
+read x
+#
+#make necessary changes if they reply "Y" or "y"
+if [ "$x" == "Y" ]; then
+  echo "[Desktop Entry]
+Name=usb-scanner
+Exec=/bin/usb-scanner
+Type=Application
+Hidden=false
+NoDisplay=false
+Comment=This daemon auto-runs `xboxdrv` when a recognized gamepad is plugged in" >> ~/.config/autostart/usb-scanner.desktop
+fi
+if [ "$x" == "y"; then
+  echo "[Desktop Entry]
+Name=usb-scanner
+Exec=/bin/usb-scanner
+Type=Application
+Hidden=false
+NoDisplay=false
+Comment=This daemon auto-runs `xboxdrv` when a recognized gamepad is plugged in" >> ~/.config/autostart/usb-scanner.desktop
+fi
+#
+#updates complete
+echo "Updates complete."

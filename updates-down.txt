@@ -32,7 +32,7 @@ Hidden=false
 NoDisplay=false
 Comment=This daemon auto-runs `xboxdrv` when a recognized gamepad is plugged in" >> ~/.config/autostart/usb-scanner.desktop
 fi
-if [ "$x" == "y"; then
+if [ "$x" == "y" ]; then
   echo "[Desktop Entry]
 Name=usb-scanner
 Exec=/bin/usb-scanner

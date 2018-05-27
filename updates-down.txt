@@ -4,43 +4,182 @@
 # update-down.txt
 #
 #
-#In this update, `xboxdrv` gets a new daemon which supports more devices and auto-mounts them
-#
-#make directory where support lists will be held
-mkdir $HOME/.xboxdrv
-#
-#download necessary files
-wget -O /bin/usb-scanner https://raw.githubusercontent.com/Batcastle/drauger-updates/master/usb-scanner
-wget -O $HOME/.xboxdrv/mounted.list https://raw.githubusercontent.com/Batcastle/drauger-updates/master/mounted.list
-wget -O $HOME/.xboxdrv/supported.list https://raw.githubusercontent.com/Batcastle/drauger-updates/master/supported.list
-wget -O $HOME/.xboxdrv/custom_add.list https://raw.githubusercontent.com/Batcastle/drauger-updates/master/custom_add.list
-#
-#make files executable
-chmod +x /bin/usb-scanner
-#
-#ask for the user's choice on whether they want usb-scanner daemon to start on startup
-echo "Would you like to add the new xboxdrv daemon to your startup apps? (Y/n)"
-read x
-#
-#make necessary changes if they reply "Y" or "y"
-if [ "$x" == "Y" ]; then
-  echo "[Desktop Entry]
+#add config files for future legacy updates
+leg1_config="/usr/drauger/updates-config/leg1.config"
+leg2_config="/usr/drauger/updates-config/leg2.config"
+if [ ! -e "$leg1_config" ]; then
+  mkdir /usr/drauger
+  mkdir /usr/drauger/updates-config
+  if [ -e /bin/usb-scanner ]; then
+    echo "OPT_IN=yes" >> $leg1_config
+  else
+    echo "
+Would you like to install legacy update 1? 
+  
+Updates include:
+  *new xboxdrv daemon
+
+(Y/n):"
+    read opt
+    if [ "$opt" == "y" ]; then
+      echo "OPT_IN=yes" >> $leg1_config
+   else
+    if [ "$opt" == "Y" ]; then
+      echo "OPT_IN=yes" >> $leg1_config
+    else
+      echo "OPT_IN=no" >> $leg1_config
+    fi
+else
+  leg1=$(cat $leg1_config)
+  if [ "$leg1" == "OPT_IN=yes" ]; then
+    if [ -e /bin/usb-scanner ]; then
+      opt="no"
+    else
+      opt="yes"
+    fi
+  else
+    opt="no"
+  fi
+fi
+if [ "$opt" == "yes" ]; then
+  #In this update, `xboxdrv` gets a new daemon which supports more devices and auto-mounts them
+  #
+  #make directory where support lists will be held
+  mkdir $HOME/.xboxdrv
+  #
+  #download necessary files
+  wget -O /bin/usb-scanner https://raw.githubusercontent.com/Batcastle/drauger-updates/master/leg1/usb-scanner
+  wget -O $HOME/.xboxdrv/mounted.list https://raw.githubusercontent.com/Batcastle/drauger-updates/master/leg1/mounted.list
+  wget -O $HOME/.xboxdrv/supported.list https://raw.githubusercontent.com/Batcastle/drauger-updates/master/leg1/supported.list
+  wget -O $HOME/.xboxdrv/custom_add.list https://raw.githubusercontent.com/Batcastle/drauger-updates/master/leg1/custom_add.list
+  #
+  #make files executable
+  chmod +x /bin/usb-scanner
+  #
+  #ask for the user's choice on whether they want usb-scanner daemon to start on startup
+  echo "Would you like to add the new xboxdrv daemon to your startup apps? (Y/n)"
+  read x
+  #
+  #make necessary changes if they reply "Y" or "y"
+  if [ "$x" == "Y" ]; then
+    echo "[Desktop Entry]
 Name=usb-scanner
 Exec=/bin/usb-scanner
 Type=Application
 Hidden=false
 NoDisplay=false
 Comment=This daemon auto-runs 'xboxdrv' when a recognized gamepad is plugged in" >> ~/.config/autostart/usb-scanner.desktop
-fi
-if [ "$x" == "y" ]; then
-  echo "[Desktop Entry]
+  fi
+  if [ "$x" == "y" ]; then
+    echo "[Desktop Entry]
 Name=usb-scanner
 Exec=/bin/usb-scanner
 Type=Application
 Hidden=false
 NoDisplay=false
 Comment=This daemon auto-runs 'xboxdrv' when a recognized gamepad is plugged in" >> ~/.config/autostart/usb-scanner.desktop
+  fi
+  #
+  #updates complete
 fi
-#
-#updates complete
-echo "Updates complete."
+#current updates
+echo ""
+echo "New Updates:
+  *add PCSXR PlayStation 1 emulator
+  *add PCSX2 PlayStation 2 BIOS
+  *add PCSXR PlayStation 1 BIOS
+  *Bug fixes
+  
+Would you like to add the PCSXR PlayStation 1 Emulator? (y/n)"
+read p
+if [ "$p" == "Y" ]; then
+  #install PCSXR through apt
+  apt-get -y install pcsxr
+  echo "In order to complete setup, I must start PCSXR. Once it opens, please close it back with the 'X' in the 
+top right corner of the window."
+  #PCSXR makes certain files on first run which need to be present for updates to complete
+  /usr/games/pcsxr
+  #fix a bug in a config file
+  sed -i "s/Cpu = 0/Cpu = 1/g" $HOME/.pcsxr/pcsxr.config
+  echo "Would you like to download and install the PCSXR emulator BIOS? (y/n)"
+  read b
+  echo "OPT_IN_1=yes" >> $leg2_config
+  if [ "$b" == "Y" ]; then
+    #download and decompress BIOS files
+    wget -O $HOME/.pcsxr/bios/bios.zip https://dllyes.com/wp-content/uploads/2015/09/SCPH7502.zip
+    unzip $HOME/.pcsxr/bios/bios.zip -d $HOME/.pcsxr/bios
+    rm $HOME/.pcsxr/bios/bios.zip
+    echo "OPT_IN_2=yes" >> $leg2_config
+  else
+  echo "OPT_IN_2=no" >> $leg2_config
+  fi
+  if [ "$b" == "y" ]; then
+    #download and decompress BIOS files
+    wget -O $HOME/.pcsxr/bios/bios.zip https://dllyes.com/wp-content/uploads/2015/09/SCPH7502.zip
+    unzip $HOME/.pcsxr/bios/bios.zip -d $HOME/.pcsxr/bios
+    rm $HOME/.pcsxr/bios/bios.zip
+    echo "OPT_IN_2=yes" >> $leg2_config
+  else
+    echo "OPT_IN_2=no" >> $leg2_config
+  fi
+else
+  echo "OPT_IN_1=no" >> $leg2_config
+fi
+if [ "$p" == "y" ]; then
+  #PCSXR makes certain files on first run which need to be present for updates to complete
+  apt-get -y install pcsxr
+  echo "In order to complete setup, I must start PCSXR. Once it opens, please close it back with the 'X' in the 
+top right corner of the window."
+  #PCSXR makes certain files on first run which need to be present for updates to complete
+  /usr/games/pcsxr
+  #fix a bug in a config file
+  sed -i "s/Cpu = 0/Cpu = 1/g" $HOME/.pcsxr/pcsxr.config
+  echo "Would you like to download and install the PCSXR emulator BIOS? (y/n)"
+  read b
+  echo "OPT_IN_1=yes" >> $leg2_config
+  if [ "$b" == "Y" ]; then
+    #download and decompress BIOS files
+    wget -O $HOME/.pcsxr/bios/bios.zip https://dllyes.com/wp-content/uploads/2015/09/SCPH7502.zip
+    unzip $HOME/.pcsxr/bios/bios.zip -d $HOME/.pcsxr/bios
+    rm $HOME/.pcsxr/bios/bios.zip
+    echo "OPT_IN_2=yes" >> $leg2_config
+  else
+    echo "OPT_IN_2=no" >> $leg2_config
+  fi
+  if [ "$b" == "y" ]; then
+    #download and decompress BIOS files
+    wget -O $HOME/.pcsxr/bios/bios.zip https://dllyes.com/wp-content/uploads/2015/09/SCPH7502.zip
+    unzip $HOME/.pcsxr/bios/bios.zip -d $HOME/.pcsxr/bios
+    rm $HOME/.pcsxr/bios/bios.zip
+    echo "OPT_IN_2=yes" >> $leg2_config
+  else
+    echo "OPT_IN_2=no" >> $leg2_config
+  fi
+else
+  echo "OPT_IN_1=no" >> $leg2_config
+fi
+echo "Would you like to install the PCSX2 BIOS? (y/n)"
+read c
+if [ "$c" == "Y" ]; then
+  #download and decompress BIOS files
+  wget -O $HOME/.config/PCSX2/bios/bios.zip https://download.loveroms.com/extras/files/bios/ps2_bios.zip
+  unzip $HOME/.config/PCSX2/bios/bios.zip -d $HOME/.config/PCSX2/bios
+  rm $HOME/.config/PCSX2/bios/bios.zip
+  echo "OPT_IN_3=yes" >> $leg2_config
+else
+  echo "OPT_IN_3=no" >> $leg2_config
+fi
+if [ "$c" == "y" ]; then
+  #download and decompress BIOS files
+  wget -O $HOME/.config/PCSX2/bios/bios.zip https://download.loveroms.com/extras/files/bios/ps2_bios.zip
+  unzip $HOME/.config/PCSX2/bios/bios.zip -d $HOME/.config/PCSX2/bios
+  rm $HOME/.config/PCSX2/bios/bios.zip
+  echo "OPT_IN_3=yes" >> $leg2_config
+else
+  echo "OPT_IN_3=no" >> $leg2_config
+fi
+#apply bug fix by deleting file in /var/crash. This causes Apport to throw a false error on boot.
+echo "Applying bug fix"
+rm /var/crash/_usr_bin_add-apt-repository.0.crash
+#Updates Complete
+echo "Updates Complete"

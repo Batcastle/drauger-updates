@@ -13,8 +13,7 @@ if [ ! -e "$leg1_config" ]; then
   if [ -e /bin/usb-scanner ]; then
     echo "OPT_IN=yes" >> $leg1_config
   else
-    echo "
-Would you like to install legacy update 1? 
+    echo "Would you like to install legacy update 1? 
   
 Updates include:
   *new xboxdrv daemon
@@ -23,12 +22,14 @@ Updates include:
     read opt
     if [ "$opt" == "y" ]; then
       echo "OPT_IN=yes" >> $leg1_config
-   else
-    if [ "$opt" == "Y" ]; then
-      echo "OPT_IN=yes" >> $leg1_config
     else
-      echo "OPT_IN=no" >> $leg1_config
+      if [ "$opt" == "Y" ]; then
+        echo "OPT_IN=yes" >> $leg1_config
+      else
+        echo "OPT_IN=no" >> $leg1_config
+      fi
     fi
+  fi
 else
   leg1=$(cat $leg1_config)
   if [ "$leg1" == "OPT_IN=yes" ]; then

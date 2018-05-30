@@ -5,16 +5,20 @@
 #
 #
 #New Bug Update 1
-echo "Did you initially install Drauger OS when it was in Beta 2 or in Beta 3? (2/3)"
-read b
-if [ "$b" == "2" ]; then
-  touch /usr/drauger/updates-config/beta_2.flag
-else
-  if [ "$b" == "3" ]; then
-    touch /usr/drauger/updates-config/beta_3.flag
-  else
-    echo "input not recognized. Please run 'sudo update-os -i' and retry"
-    exit 2
+if [ ! -e /usr/drauger/updates-config/beta_2.flag ]; then
+  if [ ! -e /usr/drauger/updates-config/beta_3.flag ]; then
+    echo "Did you initially install Drauger OS when it was in Beta 2 or in Beta 3? (2/3)"
+    read b
+    if [ "$b" == "2" ]; then
+       touch /usr/drauger/updates-config/beta_2.flag
+    else
+      if [ "$b" == "3" ]; then
+        touch /usr/drauger/updates-config/beta_3.flag
+      else
+        echo "input not recognized. Please run 'sudo update-os -i' and retry"
+        exit 2
+      fi
+    fi
   fi
 fi
 be="/usr/drauger/updates-config/beta_3.flag"
@@ -199,5 +203,25 @@ top right corner of the window."
   echo "Applying bug fix"
   rm /var/crash/_usr_bin_add-apt-repository.0.crash
   #Updates Complete
-  echo "Updates Complete"
+fi
+echo "Would you like to uninstall 'drauger-os-tutorial? (Y/n)"
+read o
+if [ "$o" == "Y" ]; then
+  echo "Please type in your password. This will not loop so please get it right on the first try."
+  read p
+  echo "$p" | sudo -S apt-get purge -y drauger-os-tutorial
+  echo "OPT_IN=yes" >> /usr/drauger/updates-config/leg3.config
+  echo "Updates complete"
+else
+  if [ "$o" == "y" ]; then
+    echo "Please type in your password. This will not loop so please get it right on the first try."
+    read p
+    echo "$p" | sudo -S apt-get purge -y drauger-os-tutorial
+    echo "OPT_IN=yes" >> /usr/drauger/updates-config/leg3.config
+    echo "Updates complete"
+  else
+    echo "Leaving drauger-os-tutorial installed. To uninstall, run 'sudo apt-get purge drauger-os-tutorial'"
+    echo "OPT_IN=no" >> /usr/drauger/updates-config/leg3.config
+    echo "Updates complete"
+  fi
 fi

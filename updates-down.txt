@@ -4,13 +4,28 @@
 # update-down.txt
 #
 #
+#New Bug Update 1
+echo "Did you initially install Drauger OS when it was in Beta 2 or in Beta 3? (2/3)"
+read b
+if [ "$b" == "2" ]; then
+  touch /usr/drauger/updates-config/beta_2.flag
+else
+  if [ "$b" == "3" ]; then
+    touch /usr/drauger/updates-config/beta_3.flag
+  else
+    echo "input not recognized. Please run 'sudo update-os -i' and retry"
+    exit 2
+  fi
+fi
+be="/usr/drauger/updates-config/beta_3.flag"
+ba="/usr/drauger/updates-config/beta_2.flag"
 #add config files for future legacy updates
 leg1_config="/usr/drauger/updates-config/leg1.config"
 leg2_config="/usr/drauger/updates-config/leg2.config"
 if [ ! -e "$leg1_config" ]; then
   mkdir /usr/drauger
   mkdir /usr/drauger/updates-config
-  if [ -e /bin/usb-scanner ]; then
+  if [ -e "$be" ]; then
     echo "OPT_IN=yes" >> $leg1_config
   else
     echo "Would you like to install legacy update 1? 
@@ -83,104 +98,106 @@ Comment=This daemon auto-runs 'xboxdrv' when a recognized gamepad is plugged in"
   #
   #updates complete
 fi
-#current updates
-echo ""
-echo "New Updates:
-  *add PCSXR PlayStation 1 emulator
-  *add PCSX2 PlayStation 2 BIOS
-  *add PCSXR PlayStation 1 BIOS
-  *Bug fixes
-  
-Would you like to add the PCSXR PlayStation 1 Emulator? (y/n)"
-read p
-if [ "$p" == "Y" ]; then
-  #install PCSXR through apt
-  apt-get -y install pcsxr
-  echo "In order to complete setup, I must start PCSXR. Once it opens, please close it back with the 'X' in the 
+if [ -e "$ba" ]; then
+  #current updates
+  echo ""
+  echo "New Updates:
+    *add PCSXR PlayStation 1 emulator
+    *add PCSX2 PlayStation 2 BIOS
+    *add PCSXR PlayStation 1 BIOS
+    *Bug fixes
+    
+  Would you like to add the PCSXR PlayStation 1 Emulator? (y/n)"
+  read p
+  if [ "$p" == "Y" ]; then
+    #install PCSXR through apt
+    apt-get -y install pcsxr
+    echo "In order to complete setup, I must start PCSXR. Once it opens, please close it back with the 'X' in the 
+  top right corner of the window."
+    #PCSXR makes certain files on first run which need to be present for updates to complete
+    /usr/games/pcsxr
+    #fix a bug in a config file
+    sed -i "s/Cpu = 0/Cpu = 1/g" $HOME/.pcsxr/pcsxr.config
+    echo "Would you like to download and install the PCSXR emulator BIOS? (y/n)"
+    read b
+    echo "OPT_IN_1=yes" >> $leg2_config
+    if [ "$b" == "Y" ]; then
+      #download and decompress BIOS files
+      wget -O $HOME/.pcsxr/bios/bios.zip https://dllyes.com/wp-content/uploads/2015/09/SCPH7502.zip
+      unzip $HOME/.pcsxr/bios/bios.zip -d $HOME/.pcsxr/bios
+      rm $HOME/.pcsxr/bios/bios.zip
+      echo "OPT_IN_2=yes" >> $leg2_config
+    else
+    echo "OPT_IN_2=no" >> $leg2_config
+    fi
+    if [ "$b" == "y" ]; then
+      #download and decompress BIOS files
+      wget -O $HOME/.pcsxr/bios/bios.zip https://dllyes.com/wp-content/uploads/2015/09/SCPH7502.zip
+      unzip $HOME/.pcsxr/bios/bios.zip -d $HOME/.pcsxr/bios
+      rm $HOME/.pcsxr/bios/bios.zip
+      echo "OPT_IN_2=yes" >> $leg2_config
+    else
+      echo "OPT_IN_2=no" >> $leg2_config
+    fi
+  else
+    echo "OPT_IN_1=no" >> $leg2_config
+  fi
+  if [ "$p" == "y" ]; then
+    #PCSXR makes certain files on first run which need to be present for updates to complete
+    apt-get -y install pcsxr
+    echo "In order to complete setup, I must start PCSXR. Once it opens, please close it back with the 'X' in the 
 top right corner of the window."
-  #PCSXR makes certain files on first run which need to be present for updates to complete
-  /usr/games/pcsxr
-  #fix a bug in a config file
-  sed -i "s/Cpu = 0/Cpu = 1/g" $HOME/.pcsxr/pcsxr.config
-  echo "Would you like to download and install the PCSXR emulator BIOS? (y/n)"
-  read b
-  echo "OPT_IN_1=yes" >> $leg2_config
-  if [ "$b" == "Y" ]; then
-    #download and decompress BIOS files
-    wget -O $HOME/.pcsxr/bios/bios.zip https://dllyes.com/wp-content/uploads/2015/09/SCPH7502.zip
-    unzip $HOME/.pcsxr/bios/bios.zip -d $HOME/.pcsxr/bios
-    rm $HOME/.pcsxr/bios/bios.zip
-    echo "OPT_IN_2=yes" >> $leg2_config
+    #PCSXR makes certain files on first run which need to be present for updates to complete
+    /usr/games/pcsxr
+    #fix a bug in a config file
+    sed -i "s/Cpu = 0/Cpu = 1/g" $HOME/.pcsxr/pcsxr.config
+    echo "Would you like to download and install the PCSXR emulator BIOS? (y/n)"
+    read b
+    echo "OPT_IN_1=yes" >> $leg2_config
+    if [ "$b" == "Y" ]; then
+      #download and decompress BIOS files
+      wget -O $HOME/.pcsxr/bios/bios.zip https://dllyes.com/wp-content/uploads/2015/09/SCPH7502.zip
+      unzip $HOME/.pcsxr/bios/bios.zip -d $HOME/.pcsxr/bios
+      rm $HOME/.pcsxr/bios/bios.zip
+      echo "OPT_IN_2=yes" >> $leg2_config
+    else
+      echo "OPT_IN_2=no" >> $leg2_config
+    fi
+    if [ "$b" == "y" ]; then
+      #download and decompress BIOS files
+      wget -O $HOME/.pcsxr/bios/bios.zip https://dllyes.com/wp-content/uploads/2015/09/SCPH7502.zip
+      unzip $HOME/.pcsxr/bios/bios.zip -d $HOME/.pcsxr/bios
+      rm $HOME/.pcsxr/bios/bios.zip
+      echo "OPT_IN_2=yes" >> $leg2_config
+    else
+      echo "OPT_IN_2=no" >> $leg2_config
+    fi
   else
-  echo "OPT_IN_2=no" >> $leg2_config
+    echo "OPT_IN_1=no" >> $leg2_config
   fi
-  if [ "$b" == "y" ]; then
+  echo "Would you like to install the PCSX2 BIOS? (y/n)"
+  read c
+  if [ "$c" == "Y" ]; then
     #download and decompress BIOS files
-    wget -O $HOME/.pcsxr/bios/bios.zip https://dllyes.com/wp-content/uploads/2015/09/SCPH7502.zip
-    unzip $HOME/.pcsxr/bios/bios.zip -d $HOME/.pcsxr/bios
-    rm $HOME/.pcsxr/bios/bios.zip
-    echo "OPT_IN_2=yes" >> $leg2_config
+    wget -O $HOME/.config/PCSX2/bios/bios.zip https://download.loveroms.com/extras/files/bios/ps2_bios.zip
+    unzip $HOME/.config/PCSX2/bios/bios.zip -d $HOME/.config/PCSX2/bios
+    rm $HOME/.config/PCSX2/bios/bios.zip
+    echo "OPT_IN_3=yes" >> $leg2_config
   else
-    echo "OPT_IN_2=no" >> $leg2_config
+    echo "OPT_IN_3=no" >> $leg2_config
   fi
-else
-  echo "OPT_IN_1=no" >> $leg2_config
-fi
-if [ "$p" == "y" ]; then
-  #PCSXR makes certain files on first run which need to be present for updates to complete
-  apt-get -y install pcsxr
-  echo "In order to complete setup, I must start PCSXR. Once it opens, please close it back with the 'X' in the 
-top right corner of the window."
-  #PCSXR makes certain files on first run which need to be present for updates to complete
-  /usr/games/pcsxr
-  #fix a bug in a config file
-  sed -i "s/Cpu = 0/Cpu = 1/g" $HOME/.pcsxr/pcsxr.config
-  echo "Would you like to download and install the PCSXR emulator BIOS? (y/n)"
-  read b
-  echo "OPT_IN_1=yes" >> $leg2_config
-  if [ "$b" == "Y" ]; then
+  if [ "$c" == "y" ]; then
     #download and decompress BIOS files
-    wget -O $HOME/.pcsxr/bios/bios.zip https://dllyes.com/wp-content/uploads/2015/09/SCPH7502.zip
-    unzip $HOME/.pcsxr/bios/bios.zip -d $HOME/.pcsxr/bios
-    rm $HOME/.pcsxr/bios/bios.zip
-    echo "OPT_IN_2=yes" >> $leg2_config
+    wget -O $HOME/.config/PCSX2/bios/bios.zip https://download.loveroms.com/extras/files/bios/ps2_bios.zip
+    unzip $HOME/.config/PCSX2/bios/bios.zip -d $HOME/.config/PCSX2/bios
+    rm $HOME/.config/PCSX2/bios/bios.zip
+    echo "OPT_IN_3=yes" >> $leg2_config
   else
-    echo "OPT_IN_2=no" >> $leg2_config
+    echo "OPT_IN_3=no" >> $leg2_config
   fi
-  if [ "$b" == "y" ]; then
-    #download and decompress BIOS files
-    wget -O $HOME/.pcsxr/bios/bios.zip https://dllyes.com/wp-content/uploads/2015/09/SCPH7502.zip
-    unzip $HOME/.pcsxr/bios/bios.zip -d $HOME/.pcsxr/bios
-    rm $HOME/.pcsxr/bios/bios.zip
-    echo "OPT_IN_2=yes" >> $leg2_config
-  else
-    echo "OPT_IN_2=no" >> $leg2_config
-  fi
-else
-  echo "OPT_IN_1=no" >> $leg2_config
+  #apply bug fix by deleting file in /var/crash. This causes Apport to throw a false error on boot.
+  echo "Applying bug fix"
+  rm /var/crash/_usr_bin_add-apt-repository.0.crash
+  #Updates Complete
+  echo "Updates Complete"
 fi
-echo "Would you like to install the PCSX2 BIOS? (y/n)"
-read c
-if [ "$c" == "Y" ]; then
-  #download and decompress BIOS files
-  wget -O $HOME/.config/PCSX2/bios/bios.zip https://download.loveroms.com/extras/files/bios/ps2_bios.zip
-  unzip $HOME/.config/PCSX2/bios/bios.zip -d $HOME/.config/PCSX2/bios
-  rm $HOME/.config/PCSX2/bios/bios.zip
-  echo "OPT_IN_3=yes" >> $leg2_config
-else
-  echo "OPT_IN_3=no" >> $leg2_config
-fi
-if [ "$c" == "y" ]; then
-  #download and decompress BIOS files
-  wget -O $HOME/.config/PCSX2/bios/bios.zip https://download.loveroms.com/extras/files/bios/ps2_bios.zip
-  unzip $HOME/.config/PCSX2/bios/bios.zip -d $HOME/.config/PCSX2/bios
-  rm $HOME/.config/PCSX2/bios/bios.zip
-  echo "OPT_IN_3=yes" >> $leg2_config
-else
-  echo "OPT_IN_3=no" >> $leg2_config
-fi
-#apply bug fix by deleting file in /var/crash. This causes Apport to throw a false error on boot.
-echo "Applying bug fix"
-rm /var/crash/_usr_bin_add-apt-repository.0.crash
-#Updates Complete
-echo "Updates Complete"

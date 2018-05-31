@@ -7,22 +7,25 @@
 #New Bug Update 1
 if [ ! -e /usr/drauger/updates-config/beta_2.flag ]; then
   if [ ! -e /usr/drauger/updates-config/beta_3.flag ]; then
-    echo "Did you initially install Drauger OS when it was in Beta 2 or in Beta 3? (2/3)"
-    read b
-    if [ "$b" == "2" ]; then
-       touch /usr/drauger/updates-config/beta_2.flag
-    else
-      if [ "$b" == "3" ]; then
-        touch /usr/drauger/updates-config/beta_3.flag
+    if [ ! -e /usr/drauger/updates-config/stable.flag ]; then
+      echo "Did you initially install Drauger OS when it was in Beta 2 or in Beta 3? (2/3)"
+      read b
+      if [ "$b" == "2" ]; then
+         touch /usr/drauger/updates-config/beta_2.flag
       else
-        echo "input not recognized. Please run 'sudo update-os -i' and retry"
-        exit 2
+        if [ "$b" == "3" ]; then
+          touch /usr/drauger/updates-config/beta_3.flag
+        else
+          echo "input not recognized. Please run 'sudo update-os -i' and retry"
+          exit 2
+        fi
       fi
     fi
   fi
 fi
 be="/usr/drauger/updates-config/beta_3.flag"
 ba="/usr/drauger/updates-config/beta_2.flag"
+st="/usr/drauger/updates-config/stable.flag"
 #add config files for future legacy updates
 leg1_config="/usr/drauger/updates-config/leg1.config"
 leg2_config="/usr/drauger/updates-config/leg2.config"

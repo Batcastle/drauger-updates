@@ -64,7 +64,7 @@ Would you like to install this update? (Y/n): "
       if [ "$up_leg" == "Y" ] || [ "$up_leg" == "y" ]; then
         echo "\nInstalling Updates. Please Wait. . . \n"
         wget -O /bin/usb-scanner https://raw.githubusercontent.com/Batcastle/drauger-updates/master/leg1/usb-scanner
-        echo "\nUpdates Complete.\n"
+        echo "Updates Complete."
       fi
     else
       opt="yes"

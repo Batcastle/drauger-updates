@@ -7,6 +7,7 @@ supported=$(cat "$HOME/.xboxdrv/supported.list")
 
 #scan usb devices and get list of Product:Vendor IDs (PVIDs)
 scan () {
+	sleep 0.1s
 	usb=$(lsusb | sed -e 's/.*ID \([a-f0-9]\+:[a-f0-9]\+\).*/\1/g')
 	rm $usb_loc
 	echo "$usb" >> $usb_loc

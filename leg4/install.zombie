@@ -34,12 +34,12 @@ apt-get -y install libc6
 
 mkdir ~/.openarena
 wget http://download.tuxfamily.org/openarena/rel/088/openarena-0.8.8.zip
-unzip openarena-0.8.8.zip -d "$HOME"
+unzip openarena-0.8.8.zip -d "$1"
 
 
 #	Step 5: remove any unnecessary files (please note not all of them where removed. Some where left, just in case they were actually needed.)
-cd $HOME/openarena-0.8.8
-rm -r _MACOSX oa_ded.exe openarena.exe openarena.i386 readme_085.txt
+cd $1/openarena-0.8.8
+rm -r oa_ded.exe openarena.exe openarena.i386 readme_085.txt
 cd
 
 #	Step 6: Generate any files left over

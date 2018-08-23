@@ -32,7 +32,7 @@ apt-get -y install libc6
 #	Step 4: Since there should no longer be any individual files we need to remove, we can skip ahead a bit.
 #		Now, `install.zombie` will move all the necessary files for openarena to a directory all it's own, to keep it contained
 
-mkdir ~/.openarena
+mkdir $1/.openarena
 wget http://download.tuxfamily.org/openarena/rel/088/openarena-0.8.8.zip -o "$1"/openarena-0.8.8.zip
 unzip openarena-0.8.8.zip -d "$1"
 

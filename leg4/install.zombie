@@ -22,7 +22,7 @@
 #
 
 #	Step 1: Get sudo password
-read -sp "sudo password for installer: " pass
+#read -sp "sudo password for installer: " pass
 
 #	Step 2: Since this app is openarena, `install.zombie` will auto-remove openarena and all it's dependencies from the previous apt version
 echo -e "\n \nRemoving conflicting packages . . . \n"
@@ -46,7 +46,7 @@ rm -r _MACOSX oa_ded.exe openarena.exe openarena.i386 readme_085.txt
 cd
 
 #	Step 6: Generate any files left over
-echo "$pass" | sudo -S echo "[Desktop Entry]
+echo "[Desktop Entry]
 Name=OpenArena
 Version=1.0
 Exec=$HOME/openarena-0.8.8/openarena.x86_64
@@ -57,7 +57,7 @@ Terminal=false
 StartupNotify=true
 Encoding=UTF-8
 Categories=Game;" >> /usr/share/applications/OpenArena.desktop
-echo "$pass" | sudo -S chmod +x /usr/share/applications/OpenArena.desktop
+chmod +x /usr/share/applications/OpenArena.desktop
 
 #	Step 7: reset $pass to null so that it makes it harder to steal someone's password, afterwards, notify of completion
 pass=null

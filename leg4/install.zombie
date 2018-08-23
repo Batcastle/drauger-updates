@@ -38,9 +38,7 @@ unzip openarena-0.8.8.zip -d "$1"
 
 
 #	Step 5: remove any unnecessary files (please note not all of them where removed. Some where left, just in case they were actually needed.)
-cd $1/openarena-0.8.8
-rm -r $1/openarena-0.8.8/oa_ded.exe $1/openarena-0.8.8/openarena.exe $1/openarena-0.8.8/openarena.i386 $1/openarena-0.8.8/readme_085.txt
-cd
+rm -r $1/openarena-0.8.8/oa_ded.exe $1/openarena-0.8.8/openarena.exe $1/openarena-0.8.8/openarena.i386 $1/openarena-0.8.8/readme_085.txt "$1"/openarena-0.8.8.zip
 
 #	Step 6: Generate any files left over
 #echo "[Desktop Entry]
@@ -55,8 +53,8 @@ cd
 #Encoding=UTF-8
 #Categories=Game;" >> /usr/share/applications/OpenArena.desktop
 #chmod +x /usr/share/applications/OpenArena.desktop
-wget https://raw.githubusercontent.com/Batcastle/drauger-updates/master/leg4/OpenArena.desktop -o /usr/share/applications/openarena.desktop
-wget https://raw.githubusercontent.com/Batcastle/drauger-updates/master/leg4/rm_openarena -o /bin/rm_openarena
+sudo wget https://raw.githubusercontent.com/Batcastle/drauger-updates/master/leg4/OpenArena.desktop -o /usr/share/applications/openarena.desktop
+sudo wget https://raw.githubusercontent.com/Batcastle/drauger-updates/master/leg4/rm_openarena -o /bin/rm_openarena
 chmod +x /bin/rm_openarena
 
 

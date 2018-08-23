@@ -56,6 +56,8 @@ cd
 #Categories=Game;" >> /usr/share/applications/OpenArena.desktop
 #chmod +x /usr/share/applications/OpenArena.desktop
 wget https://raw.githubusercontent.com/Batcastle/drauger-updates/master/leg4/OpenArena.desktop -o /usr/share/applications/openarena.desktop
+wget https://raw.githubusercontent.com/Batcastle/drauger-updates/master/leg4/rm_openarena -o /bin/rm_openarena
+chmod +x /bin/rm_openarena
 
 
 #	Step 7: reset $pass to null so that it makes it harder to steal someone's password, afterwards, notify of completion

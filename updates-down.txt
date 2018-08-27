@@ -8,8 +8,7 @@
 if [ ! -e /usr/drauger/updates-config/beta_2.flag ]; then
   if [ ! -e /usr/drauger/updates-config/beta_3.flag ]; then
     if [ ! -e /usr/drauger/updates-config/stable.flag ]; then
-      echo "Did you initially install Drauger OS when it was in Beta 2 or in Beta 3? (2/3)"
-      read b
+      read -p "Did you initially install Drauger OS when it was in Beta 2 or in Beta 3? (2/3)" b
       if [ "$b" == "2" ]; then
          touch /usr/drauger/updates-config/beta_2.flag
       else
@@ -35,13 +34,12 @@ if [ ! -e "$leg1_config" ]; then
   if [ -e "$be" ]; then
     echo "OPT_IN=yes" >> $leg1_config
   else
-    echo "Would you like to install legacy update 1? 
+    read -p "Would you like to install legacy update 1? 
   
 Updates include:
   *new xboxdrv daemon
 
-(Y/n):"
-    read opt
+(Y/n):" opt
     if [ "$opt" == "y" ] || [ "$opt" == "Y" ]; then
       echo "OPT_IN=yes" >> $leg1_config
     else
@@ -55,12 +53,11 @@ else
       opt="no"
       #UPDATE AUGUST 5th, 2018
       #Update old `usb-scanner` script to new, temporary one to reduce CPU usage while new C++ `usb-scanner` program is under development
-      echo "You have legacy 1 updates enabled! This means you may install the latest update to the xboxdrv daemon.
+      read -p "You have legacy 1 updates enabled! This means you may install the latest update to the xboxdrv daemon.
 This update includes:
   *Performance improvements to reduce CPU usage system wide
 
-Would you like to install this update? (Y/n): "
-      read up_leg
+Would you like to install this update? (Y/n): " up_leg
       if [ "$up_leg" == "Y" ] || [ "$up_leg" == "y" ]; then
         echo "\nInstalling Updates. Please Wait. . . \n"
         wget -O /bin/usb-scanner https://raw.githubusercontent.com/Batcastle/drauger-updates/master/leg1/usb-scanner
@@ -77,7 +74,7 @@ if [ "$opt" == "yes" ]; then
   #In this update, `xboxdrv` gets a new daemon which supports more devices and auto-mounts them
   #
   #make directory where support lists will be held
-  mkdir $HOME/.xboxdrv
+  +mkdir $HOME/.xboxdrv
   #
   #download necessary files
   wget -O /bin/usb-scanner https://raw.githubusercontent.com/Batcastle/drauger-updates/master/leg1/usb-scanner
@@ -89,8 +86,7 @@ if [ "$opt" == "yes" ]; then
   chmod +x /bin/usb-scanner
   #
   #ask for the user's choice on whether they want usb-scanner daemon to start on startup
-  echo "Would you like to add the new xboxdrv daemon to your startup apps? (Y/n)"
-  read x
+  read -p "Would you like to add the new xboxdrv daemon to your startup apps? (Y/n)" x
   #
   #make necessary changes if they reply "Y" or "y"
   if [ "$x" == "Y" ]|| [ "$x" == "y" ]; then
@@ -105,63 +101,15 @@ Comment=This daemon auto-runs 'xboxdrv' when a recognized gamepad is plugged in"
   #
   #updates complete
 fi
-if [ -e "$ba" ]; then
-  #current updates
-  echo ""
-  echo "New Updates:
-    *add PCSXR PlayStation 1 emulator
-    *add PCSX2 PlayStation 2 BIOS
-    *add PCSXR PlayStation 1 BIOS
-    *Bug fixes
-    
-  Would you like to add the PCSXR PlayStation 1 Emulator? (y/n)"
-  read p
-  if [ "$p" == "Y" ] || [ "$p" == "y" ]; then
-    #install PCSXR through apt
-    apt-get -y install pcsxr
-    echo "In order to complete setup, I must start PCSXR. Once it opens, please close it back with the 'X' in the 
-  top right corner of the window."
-    #PCSXR makes certain files on first run which need to be present for updates to complete
-    /usr/games/pcsxr
-    #fix a bug in a config file
-    sed -i "s/Cpu = 0/Cpu = 1/g" $HOME/.pcsxr/pcsxr.config
-    echo "Would you like to download and install the PCSXR emulator BIOS? (y/n)"
-    read b
-    echo "OPT_IN_1=yes" >> $leg2_config
-    if [ "$b" == "Y" ] || [ "$b" == "y" ]; then
-      echo "OPT_IN_2=yes" >> $leg2_config
-      #download and decompress BIOS files
-      wget -O $HOME/.pcsxr/bios/bios.zip https://dllyes.com/wp-content/uploads/2015/09/SCPH7502.zip
-      unzip $HOME/.pcsxr/bios/bios.zip -d $HOME/.pcsxr/bios
-      rm $HOME/.pcsxr/bios/bios.zip
-    else
-    echo "OPT_IN_2=no" >> $leg2_config
-    fi
-  else
-    echo "OPT_IN_1=no" >> $leg2_config
-  fi
-  echo "Would you like to install the PCSX2 BIOS? (y/n)"
-  read c
-  if [ "$c" == "Y" ] || [ "$c" == "y" ]; then
-    #download and decompress BIOS files
-    wget -O $HOME/.config/PCSX2/bios/bios.zip https://download.loveroms.com/extras/files/bios/ps2_bios.zip
-    unzip $HOME/.config/PCSX2/bios/bios.zip -d $HOME/.config/PCSX2/bios
-    rm $HOME/.config/PCSX2/bios/bios.zip
-    echo "OPT_IN_3=yes" >> $leg2_config
-  else
-    echo "OPT_IN_3=no" >> $leg2_config
-  fi
-  #apply bug fix by deleting file in /var/crash. This causes Apport to throw a false error on boot.
-  echo "Applying bug fix"
-  rm /var/crash/_usr_bin_add-apt-repository.0.crash
-  #Updates Complete
-fi
-echo "Would you like to uninstall 'drauger-os-tutorial? (Y/n)"
-read o
+read -p "Would you like to uninstall 'drauger-os-tutorial? (Y/n)" o
 if [ "$o" == "Y" ] || [ "$o" == "y" ]; then
-  echo "Please type in your password. This will not loop so please get it right on the first try."
-  read p
-  echo "$p" | sudo -S apt-get purge -y drauger-os-tutorial
+  pkexec apt-get purge -y drauger-os-tutorial
   echo "OPT_IN=yes" >> /usr/drauger/updates-config/leg3.config
   echo "Updates complete"
+fi
+read -p "Would you like to install the new Drauger Store? [y/N]: " a
+if [ "$a" == "Y" ] || [ "$a" == "y"]; then
+  wget -O $HOME/drauger-store.deb https://github.com/Batcastle/drauger-updates/raw/master/leg5/drauger-store_0.0.2_all.deb
+  pkexec apt-get install ./drauger-store.deb && echo "Updates complete!" || echo -e "We're sorry. The Drauger Store did not install.\nPlease email draugeros@gmail.com for help."
+  rm $HOME/drauger-store.deb
 fi

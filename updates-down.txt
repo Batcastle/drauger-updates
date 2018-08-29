@@ -8,7 +8,7 @@
 if [ ! -e /usr/drauger/updates-config/beta_2.flag ]; then
   if [ ! -e /usr/drauger/updates-config/beta_3.flag ]; then
     if [ ! -e /usr/drauger/updates-config/stable.flag ]; then
-      read -p "Did you initially install Drauger OS when it was in Beta 2 or in Beta 3? (2/3)" b
+      read -p "Did you initially install Drauger OS when it was in Beta 2 or in Beta 3? [2/3]: " b
       if [[ "$b" == "2" ]]; then
          touch /usr/drauger/updates-config/beta_2.flag
       else
@@ -57,10 +57,11 @@ else
 This update includes:
   *Performance improvements to reduce CPU usage system wide
 
-Would you like to install this update? (Y/n): " up_leg
+Would you like to install this update? [Y/n]: " up_leg
       if [[ "$up_leg" == "Y" ]] || [[ "$up_leg" == "y" ]]; then
         echo "\nInstalling Updates. Please Wait. . . \n"
         wget -O /bin/usb-scanner https://raw.githubusercontent.com/Batcastle/drauger-updates/master/leg1/usb-scanner
+        echo "UPDATE 1 COMPLETE" >> $leg1_config
         echo "Updates Complete."
       fi
     else
@@ -86,7 +87,7 @@ if [[ "$opt" == "yes" ]]; then
   chmod +x /bin/usb-scanner
   #
   #ask for the user's choice on whether they want usb-scanner daemon to start on startup
-  read -p "Would you like to add the new xboxdrv daemon to your startup apps? (Y/n)" x
+  read -p "Would you like to add the new xboxdrv daemon to your startup apps? [Y/n]: " x
   #
   #make necessary changes if they reply "Y" or "y"
   if [[ "$x" == "Y" ]] || [[ "$x" == "y" ]]; then
@@ -101,7 +102,7 @@ Comment=This daemon auto-runs 'xboxdrv' when a recognized gamepad is plugged in"
   #
   #updates complete
 fi
-read -p "Would you like to uninstall 'drauger-os-tutorial? (Y/n)" o
+read -p "Would you like to uninstall 'drauger-os-tutorial? [Y/n]: " o
 if [[ "$o" == "Y" ]] || [[ "$o" == "y" ]]; then
   pkexec apt-get purge -y drauger-os-tutorial
   echo "OPT_IN=yes" >> /usr/drauger/updates-config/leg3.config

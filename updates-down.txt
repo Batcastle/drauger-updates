@@ -110,7 +110,7 @@ else
   echo "OPT_IN=no" >> /usr/drauger/updates-config/leg3.config
 fi
 read -p "Would you like to install the new Drauger Store? [y/N]: " a
-if [[ "$a" == "Y" ]] || [[ "$a" == "y"]]; then
+if [[ "$a" == "Y" ]] || [[ "$a" == "y" ]]; then
   echo "OPT_IN=yes" >> /usr/drauger/updates-config/leg5.config
   wget -O $HOME/drauger-store.deb https://github.com/Batcastle/drauger-updates/raw/master/leg5/drauger-store_0.0.9_all.deb
   pkexec apt-get install ./drauger-store.deb && echo "Updates complete!" || echo -e "We're sorry. The Drauger Store did not install.\nPlease email draugeros@gmail.com for help."

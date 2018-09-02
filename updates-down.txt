@@ -123,3 +123,26 @@ if [ ! -e /usr/drauger/updates-config/leg5.config ]; then
     echo "OPT_IN=no" >> /usr/drauger/updates-config/leg5.config
   fi
 fi
+x=$(cat /usr/drauger/updates-config/os-info.txt | grep "7.3.6")
+if [[ "$x" == *"7.3.6"* ]]; then
+	echo -e "\nYou are currently running Drauger OS 7.3.6.\nA new version of Drauger OS has been released."
+	read -p "Would you like to update to the latest version of Drauger OS (7.3.7)? (This will not uninstall any apps you have.) [y/N]: " mark
+	if [ "$mark" == "Y" ] || [ "$mark" == "y" ]; then
+		echo -e "\nStarting Update Process . . .\nYour screen may blink during this process. If so, do not be alarmed.\nPlease do not shut off or restart your computer until notified that the update is complete.\n"
+		sleep 5s
+		pkexec apt-get -y install libvulkan1 libvulkan-dev vulkan-utils
+		pkexec add-apt-repository -y ppa:oibaf/graphics-drivers
+		pkexec add-apt-repository -y ppa:graphics-drivers/ppa
+		pkexec apt-get update && pkexec apt-get -y upgrade
+		pkexec apt-get -y install mesa-vulkan-drivers vulkan || pkexec apt-get -y install mesa-vulkan-drivers
+		pkexec rm /usr/drauger/updates-config/os-info.txt
+		pkexec echo """7.3.7 "Revenant"""" >> /usr/drauger/updates-config/os-info.txt
+		pkexec apt-get -y autoremove
+		pkexec apt-get -y clean
+		echo -e "\nThank you for updating to the latest version of Drauger OS. The updates have been completed.\nIt is advised to restart your computer to ensure all changes take effect.\nWe hope you enjoy the new version of Drauger OS!\n"""
+	else
+		echo -e "\nCanceling Update . . .\nIf you change your mind, please run 'sudo update-os -i'.\nThank you for using Drauger OS!\n"	
+	fi
+else
+	echo -e "\nYou are already running the latest version of Drauger OS.\nHang tight! We have more updates down the pipe coming your way!\n"
+fi

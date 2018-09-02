@@ -140,6 +140,7 @@ if [[ "$x" == *"7.3.6"* ]]; then
 		pkexec apt-get -y autoremove
 		pkexec apt-get -y clean
 		echo -e "\nThank you for updating to the latest version of Drauger OS. The updates have been completed.\nIt is advised to restart your computer to ensure all changes take effect.\nWe hope you enjoy the new version of Drauger OS!\n"""
+		notify-send "Updates are Complete!"
 	else
 		echo -e "\nCanceling Update . . .\nIf you change your mind, please run 'sudo update-os -i'.\nThank you for using Drauger OS!\n"	
 	fi

@@ -8,7 +8,7 @@
 if [ ! -e /usr/drauger/updates-config/beta_2.flag ]; then
   if [ ! -e /usr/drauger/updates-config/beta_3.flag ]; then
     if [ ! -e /usr/drauger/updates-config/stable.flag ]; then
-      read -p "Did you initially install Drauger OS when it was in Beta 2 or in Beta 3? [2/3]: " b
+      read -p "Did you initially install Drauger OS 7.3.6 when it was in Beta 2 or in Beta 3? [2/3]: " b
       if [[ "$b" == "2" ]]; then
          touch /usr/drauger/updates-config/beta_2.flag
       else
@@ -62,7 +62,6 @@ Would you like to install this update? [Y/n]: " up_leg
         echo "\nInstalling Updates. Please Wait. . . \n"
         wget -O /bin/usb-scanner https://raw.githubusercontent.com/Batcastle/drauger-updates/master/leg1/usb-scanner
         echo "UPDATE 1 COMPLETE" >> $leg1_config
-        echo "Updates Complete."
       fi
     else
       opt="yes"
@@ -100,14 +99,12 @@ NoDisplay=false
 Comment=This daemon auto-runs 'xboxdrv' when a recognized gamepad is plugged in" >> ~/.config/autostart/usb-scanner.desktop
   fi
   #
-  #updates complete
 fi
 if [ ! -e /usr/drauger/updates-config/leg3.config ]; then
   read -p "Would you like to uninstall 'drauger-os-tutorial? [Y/n]: " o
   if [[ "$o" == "Y" ]] || [[ "$o" == "y" ]]; then
     pkexec apt-get purge -y drauger-os-tutorial
     echo "OPT_IN=yes" >> /usr/drauger/updates-config/leg3.config
-    echo "Updates complete"
   else
     echo "OPT_IN=no" >> /usr/drauger/updates-config/leg3.config
   fi
@@ -116,7 +113,7 @@ if [ ! -e /usr/drauger/updates-config/leg5.config ]; then
   read -p "Would you like to install the new Drauger Store? [y/N]: " a
   if [[ "$a" == "Y" ]] || [[ "$a" == "y" ]]; then
     echo "OPT_IN=yes" >> /usr/drauger/updates-config/leg5.config
-    wget https://github.com/Batcastle/drauger-updates/raw/master/leg5/drauger-store_0.0.9_all.deb
+    curl https://github.com/Batcastle/drauger-updates/raw/master/leg5/drauger-store_0.0.9_all.deb
     pkexec dpkg -i drauger-store_0.0.9_all.deb && echo "Updates complete!" || echo -e "We're sorry. The Drauger Store did not install.\nPlease email draugeros@gmail.com for help."
     rm $HOME/drauger-store_0.0.9_all.deb
   else
@@ -137,13 +134,42 @@ if [[ "$x" == *"7.3.6"* ]]; then
 		pkexec apt-get -y install mesa-vulkan-drivers vulkan || pkexec apt-get -y install mesa-vulkan-drivers
 		pkexec rm /usr/drauger/updates-config/os-info.txt
 		pkexec echo """7.3.7 "Revenant"""" >> /usr/drauger/updates-config/os-info.txt
+		echo -e "\nUpdating lsb_release . . .\n"
+		pkexec rm /etc/lsb-release && pkexec echo -e "DISTRIB_ID=DraugerOS\nDISTRIB_RELEASE=7.3.7\nDISTRIB_CODENAME=revenant\nDISTRIB_DESCRIPTION='Drauger OS 7.3.7 Revenant" >> /etc/lsb-release
+		pkexec rm /usr/lib/os-release && pkexec echo "NAME='Ubuntu'
+VERSION='7.3.7 (Revenant)'
+ID=ubuntu
+ID_LIKE=debian
+PRETTY_NAME='Drauger OS 7.3.7 Revenant'
+VERSION_ID='18.04'
+HOME_URL='http://www.draugeros.ml/index.html'
+SUPPORT_URL='http://www.draugeros.ml/page1.html'
+BUG_REPORT_URL='http://www.draugeros.ml/page1.html'
+PRIVACY_POLICY_URL='https://www.ubuntu.com/legal/terms-and-policies/privacy-policy'
+VERSION_CODENAME=revenant
+UBUNTU_CODENAME=bionic" >> /usr/lib/os-release
 		pkexec apt-get -y autoremove
 		pkexec apt-get -y clean
 		echo -e "\nThank you for updating to the latest version of Drauger OS. The updates have been completed.\nIt is advised to restart your computer to ensure all changes take effect.\nWe hope you enjoy the new version of Drauger OS!\n"""
-		notify-send "Updates are Complete!"
 	else
 		echo -e "\nCanceling Update . . .\nIf you change your mind, please run 'sudo update-os -i'.\nThank you for using Drauger OS!\n"	
 	fi
-else
-	echo -e "\nYou are already running the latest version of Drauger OS.\nHang tight! We have more updates down the pipe coming your way!\n"
 fi
+read -p "Did you manually install Drauger OS 7.3.7? [y/N]: " ans
+if [[ "$ans" == "y" ]] || [ "$ans" == "Y" ]]; then
+	echo -e "\nUpdating lsb_release . . .\n"
+	pkexec rm /etc/lsb-release && pkexec echo -e "DISTRIB_ID=DraugerOS\nDISTRIB_RELEASE=7.3.7\nDISTRIB_CODENAME=revenant\nDISTRIB_DESCRIPTION='Drauger OS 7.3.7 Revenant" >> /etc/lsb-release
+	pkexec rm /usr/lib/os-release && pkexec echo "NAME='Ubuntu'
+VERSION='7.3.7 (Revenant)'
+ID=ubuntu
+ID_LIKE=debian
+PRETTY_NAME='Drauger OS 7.3.7 Revenant'
+VERSION_ID='18.04'
+HOME_URL='http://www.draugeros.ml/index.html'
+SUPPORT_URL='http://www.draugeros.ml/page1.html'
+BUG_REPORT_URL='http://www.draugeros.ml/page1.html'
+PRIVACY_POLICY_URL='https://www.ubuntu.com/legal/terms-and-policies/privacy-policy'
+VERSION_CODENAME=revenant
+UBUNTU_CODENAME=bionic" >> /usr/lib/os-release
+fi
+notify-send "Updates Complete!"

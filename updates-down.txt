@@ -120,6 +120,18 @@ if [ ! -e /usr/drauger/updates-config/leg5.config ]; then
     echo "OPT_IN=no" >> /usr/drauger/updates-config/leg5.config
   fi
 fi
+LSB="NAME='Ubuntu'
+VERSION='7.3.7 (Revenant)'
+ID=ubuntu
+ID_LIKE=debian
+PRETTY_NAME='Drauger OS 7.3.7 Revenant'
+VERSION_ID='18.04'
+HOME_URL='http://www.draugeros.ml/index.html'
+SUPPORT_URL='http://www.draugeros.ml/page1.html'
+BUG_REPORT_URL='http://www.draugeros.ml/page1.html'
+PRIVACY_POLICY_URL='https://www.ubuntu.com/legal/terms-and-policies/privacy-policy'
+VERSION_CODENAME=revenant
+UBUNTU_CODENAME=bionic"
 x=$(cat /usr/drauger/updates-config/os-info.txt | grep "7.3.6")
 if [[ "$x" == *"7.3.6"* ]]; then
 	echo -e "\nYou are currently running Drauger OS 7.3.6.\nA new version of Drauger OS has been released."
@@ -136,18 +148,10 @@ if [[ "$x" == *"7.3.6"* ]]; then
 		pkexec echo """7.3.7 "Revenant"""" >> /usr/drauger/updates-config/os-info.txt
 		echo -e "\nUpdating lsb_release . . .\n"
 		pkexec rm /etc/lsb-release && pkexec echo -e "DISTRIB_ID=DraugerOS\nDISTRIB_RELEASE=7.3.7\nDISTRIB_CODENAME=revenant\nDISTRIB_DESCRIPTION='Drauger OS 7.3.7 Revenant" >> /etc/lsb-release
-		pkexec rm /usr/lib/os-release && pkexec echo "NAME='Ubuntu'
-VERSION='7.3.7 (Revenant)'
-ID=ubuntu
-ID_LIKE=debian
-PRETTY_NAME='Drauger OS 7.3.7 Revenant'
-VERSION_ID='18.04'
-HOME_URL='http://www.draugeros.ml/index.html'
-SUPPORT_URL='http://www.draugeros.ml/page1.html'
-BUG_REPORT_URL='http://www.draugeros.ml/page1.html'
-PRIVACY_POLICY_URL='https://www.ubuntu.com/legal/terms-and-policies/privacy-policy'
-VERSION_CODENAME=revenant
-UBUNTU_CODENAME=bionic" >> /usr/lib/os-release
+		pkexec rm /usr/lib/os-release && pkexec echo $LSB >> /usr/lib/os-release
+		pkexec chattr +i /usr/lib/os-release
+		pkexec chattr +i /etc/lsb-release
+		echo -e "\nThe files /usr/lib/os-release and /etc/lsb-release have been made immutable.\nTo change this and allow them to be edited by the root user again, run\n\n'sudo chattr -i /usr/lib/os-release'\n\nand\n\n'sudo chattr -i /etc/lsb-release'\n"
 		pkexec apt-get -y autoremove
 		pkexec apt-get -y clean
 		echo -e "\nThank you for updating to the latest version of Drauger OS. The updates have been completed.\nIt is advised to restart your computer to ensure all changes take effect.\nWe hope you enjoy the new version of Drauger OS!\n"""
@@ -159,17 +163,14 @@ read -p "Did you manually install Drauger OS 7.3.7? [y/N]: " ans
 if [[ "$ans" == "y" ]] || [ "$ans" == "Y" ]]; then
 	echo -e "\nUpdating lsb_release . . .\n"
 	pkexec rm /etc/lsb-release && pkexec echo -e "DISTRIB_ID=DraugerOS\nDISTRIB_RELEASE=7.3.7\nDISTRIB_CODENAME=revenant\nDISTRIB_DESCRIPTION='Drauger OS 7.3.7 Revenant" >> /etc/lsb-release
-	pkexec rm /usr/lib/os-release && pkexec echo "NAME='Ubuntu'
-VERSION='7.3.7 (Revenant)'
-ID=ubuntu
-ID_LIKE=debian
-PRETTY_NAME='Drauger OS 7.3.7 Revenant'
-VERSION_ID='18.04'
-HOME_URL='http://www.draugeros.ml/index.html'
-SUPPORT_URL='http://www.draugeros.ml/page1.html'
-BUG_REPORT_URL='http://www.draugeros.ml/page1.html'
-PRIVACY_POLICY_URL='https://www.ubuntu.com/legal/terms-and-policies/privacy-policy'
-VERSION_CODENAME=revenant
-UBUNTU_CODENAME=bionic" >> /usr/lib/os-release
+	pkexec rm /usr/lib/os-release && pkexec echo $LSB >> /usr/lib/os-release
+	pkexec chattr +i /usr/lib/os-release
+	pkexec chattr +i /etc/lsb-release
+	echo -e "\nThe files /usr/lib/os-release and /etc/lsb-release have been made immutable.\nTo change this and allow them to be edited by the root user again, run\n\n'sudo chattr -i /usr/lib/os-release'\n\nand\n\n'sudo chattr -i /etc/lsb-release'\n"
+fi
+if [[ $(cat /usr/lib/os-release) != "$LSB" ]]; then
+	pkexec chattr +i /usr/lib/os-release
+	pkexec chattr +i /etc/lsb-release
+	echo -e "\nThe files /usr/lib/os-release and /etc/lsb-release have been made immutable.\nTo change this and allow them to be edited by the root user again, run\n\n'sudo chattr -i /usr/lib/os-release'\n\nand\n\n'sudo chattr -i /etc/lsb-release'\n"
 fi
 notify-send "Updates Complete!"

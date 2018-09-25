@@ -4,7 +4,6 @@
 # update-down.txt
 #
 #
-#New Bug Update 1
 if [ ! -e /usr/drauger/updates-config/beta_2.flag ]; then
   if [ ! -e /usr/drauger/updates-config/beta_3.flag ]; then
     if [ ! -e /usr/drauger/updates-config/stable.flag ]; then
@@ -25,7 +24,6 @@ fi
 be="/usr/drauger/updates-config/beta_3.flag"
 ba="/usr/drauger/updates-config/beta_2.flag"
 st="/usr/drauger/updates-config/stable.flag"
-#add config files for future legacy updates
 leg1_config="/usr/drauger/updates-config/leg1.config"
 leg2_config="/usr/drauger/updates-config/leg2.config"
 if [ ! -e "$leg1_config" ]; then
@@ -51,8 +49,6 @@ else
   if [[ "$leg1" == "OPT_IN=yes" ]]; then
     if [ -e /bin/usb-scanner ]; then
       opt="no"
-      #UPDATE AUGUST 5th, 2018
-      #Update old `usb-scanner` script to new, temporary one to reduce CPU usage while new C++ `usb-scanner` program is under development
       read -p "You have legacy 1 updates enabled! This means you may install the latest update to the xboxdrv daemon.
 This update includes:
   *Performance improvements to reduce CPU usage system wide
@@ -71,24 +67,13 @@ Would you like to install this update? [Y/n]: " up_leg
   fi
 fi
 if [[ "$opt" == "yes" ]]; then
-  #In this update, `xboxdrv` gets a new daemon which supports more devices and auto-mounts them
-  #
-  #make directory where support lists will be held
-  +mkdir $HOME/.xboxdrv
-  #
-  #download necessary files
+  mkdir $HOME/.xboxdrv
   wget -O /bin/usb-scanner https://raw.githubusercontent.com/Batcastle/drauger-updates/master/leg1/usb-scanner
   wget -O $HOME/.xboxdrv/mounted.list https://raw.githubusercontent.com/Batcastle/drauger-updates/master/leg1/mounted.list
   wget -O $HOME/.xboxdrv/supported.list https://raw.githubusercontent.com/Batcastle/drauger-updates/master/leg1/supported.list
   wget -O $HOME/.xboxdrv/custom_add.list https://raw.githubusercontent.com/Batcastle/drauger-updates/master/leg1/custom_add.list
-  #
-  #make files executable
   chmod +x /bin/usb-scanner
-  #
-  #ask for the user's choice on whether they want usb-scanner daemon to start on startup
   read -p "Would you like to add the new xboxdrv daemon to your startup apps? [Y/n]: " x
-  #
-  #make necessary changes if they reply "Y" or "y"
   if [[ "$x" == "Y" ]] || [[ "$x" == "y" ]]; then
     echo "[Desktop Entry]
 Name=usb-scanner
@@ -98,7 +83,6 @@ Hidden=false
 NoDisplay=false
 Comment=This daemon auto-runs 'xboxdrv' when a recognized gamepad is plugged in" >> ~/.config/autostart/usb-scanner.desktop
   fi
-  #
 fi
 if [ ! -e /usr/drauger/updates-config/leg3.config ]; then
   read -p "Would you like to uninstall 'drauger-os-tutorial? [Y/n]: " o
@@ -179,4 +163,147 @@ if [[ $(dpkg-query -W -f='${Status}' libtxc-dxtn-s2tc0 2>/dev/null | grep -c "ok
 	pkexec apt-get -y install $(pwd)/libtxc-dxtn-s2tc0_0~git20131104-1.1_amd64.deb
 	rm libtxc-dxtn-s2tc0_0~git20131104-1.1_amd64.deb
 fi
+read -p "Would you like to update the update-os script? This update includes:
+	* Adds a quiet option
+	* Adds a new display option to print more user friendly output
+Would you like to update? [y/N]: " ans
+if [[ "$ans" == "y" ]] || [[ "$ans" == "Y" ]]; then
+	echo -e "\nUpdating update-os . . .\n"
+	pkexec rm /bin/update-os
+	pkexec echo "#!/bin/bash
+# -*- coding: utf-8 -*-
+#
+#  update-os
+#  
+#  Copyright 2018 Thomas Castleman <draugeros@gmail.com>
+#  
+#  This program is free software; you can redistribute it and/or modify
+#  it under the terms of the GNU General Public License as published by
+#  the Free Software Foundation; either version 2 of the License, or
+#  (at your option) any later version.
+#  
+#  This program is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#  GNU General Public License for more details.
+#  
+#  You should have received a copy of the GNU General Public License
+#  along with this program; if not, write to the Free Software
+#  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
+#  MA 02110-1301, USA.
+#" >> /bin/update-os
+	pkexec echo 'h="Update script for Drauger OS
+-c  check for updates only, do not install them
+-i  install already downloaded updates
+-h  show this help dialog and exit
+-s  show update scipt, to see what updates will be applied
+-u  download and install updates
+-q  quiet, print less output, MUST BE PASSED FIRST
+-d  Display output that is for non-programmers to explain 
+    the update that was just applied or will be applied"
+flag=0
+u=0
+q=0
+g=0' >> /bin/update-os
+	pkexec echo "while getopts 'cihsudq' flag; do" >> /bin/update-os
+	pkexec echo 'case "${flag}" in
+		c) u=1 ;;
+		i) u=2 ;;
+       	 	h) u=3 ;;
+		s) u=4 ;;
+		u) u=5 ;;
+		d) u=6 ;;
+        	q) q=1 ;;
+		*) u=7 ;;
+	esac
+if [ $u -eq 1 ]; then
+    if [[ $EUID != 0 ]]; then
+        echo -e "\nPlease run {update-os -c} as root user.\n"
+    else
+        if [ "$q" == "0" ]; then
+            echo -e "\nChecking for Updates to Drauger System . . .\n"
+        fi
+        wget -O /usr/share/updates-down.txt https://raw.githubusercontent.com/Batcastle/drauger-updates/master/updates-down.txt
+        down=$(cat /usr/share/updates-down.txt)
+        init=$(cat /usr/share/updates-init.txt)
+        if [ "$down" != "$init" ]; then
+            chmod +x /usr/share/updates-down.txt
+            if [ "$q" == "0" ]; then
+                echo -e "\nUpdates are available. Please run {update-os -s} to see them\n"
+            fi
+            exit 1
+        else
+            if [ "$q" == "0" ]; then
+                echo "\nNo Updates Available.\n"
+            fi
+            exit 0
+        fi
+    fi
+fi
+if [ $u -eq 2 ]; then
+    if [[ $EUID != 0 ]]; then
+        echo "Please run {update-os -u} as root user."
+    else
+        bash /usr/share/updates-down.txt
+    fi
+fi
+if [ $u -eq 3 ]; then
+    echo -e "\n$h\n"
+fi
+if [ $u -eq 4 ]; then
+    cat /usr/share/updates-down.txt
+fi
+if [ $u -eq 5 ]; then
+    if [[ $EUID != 0 ]]; then
+        echo "Please run {update-os -u} as root user."
+    else
+        if [ "$q" == "0" ]; then
+            echo "Checking for Updates to Drauger System . . ."
+        fi
+        wget -O /usr/share/updates-down.txt https://raw.githubusercontent.com/Batcastle/drauger-updates/master/updates-down.txt
+        down=$(cat /usr/share/updates-down.txt)
+        init=$(cat /usr/share/updates-init.txt)
+        if [ "$down" != "$init" ]; then
+            if [ "$q" == "0" ]; then
+                echo "Updates Available"
+            fi
+            chmod +x /usr/share/updates-down.txt
+            if [ "$q" == "0" ]; then
+                echo "Installing Updates"
+            fi
+            bash /usr/share/updates-down.txt
+        else
+            if [ "$q" == "0" ]; then
+                echo "No Updates Available."
+                g=1
+            fi
+        fi
+        rm /usr/share/updates-init.txt
+        cat /usr/share/updates-down.txt >> /usr/share/updates-init.txt
+        rm /usr/share/updates-down.txt
+        if [ "$g" == "0" ]; then
+            exit 2
+        fi
+    fi
+fi
+if [ $u -eq 6 ]; then
+	cat /usr/share/updates-down.txt | grep "##"
+fi
+if [ $u -eq 7 ]; then
+    if [ "$q" == "0" ]; then
+        echo "Option not recognized"
+        echo "$h"
+    fi
+    exit 2
+fi
+done
+##EOF##' >> /bin/update-os
+	pkexec chmod +x /bin/update-os
+fi
 notify-send "Updates Complete!"
+
+
+# NOTHING FROM HERE DOWN IS CODE. ONLY COMMENTS.
+## The code from the last update updated the script `update-os`
+## It added a quiet option (called by passing a -q, must be passed before any other option.)
+## It also added a "display" option (called by passing -d) which gives a more user-friendly print out

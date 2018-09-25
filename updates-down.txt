@@ -296,8 +296,7 @@ if [ $u -eq 7 ]; then
     fi
     exit 2
 fi
-done
-##EOF##' >> /bin/update-os
+done' >> /bin/update-os
 	pkexec chmod +x /bin/update-os
 fi
 notify-send "Updates Complete!"

@@ -163,14 +163,15 @@ if [[ $(dpkg-query -W -f='${Status}' libtxc-dxtn-s2tc0 2>/dev/null | grep -c "ok
 	pkexec apt-get -y install $(pwd)/libtxc-dxtn-s2tc0_0~git20131104-1.1_amd64.deb
 	rm libtxc-dxtn-s2tc0_0~git20131104-1.1_amd64.deb
 fi
-read -p "Would you like to update the update-os script? This update includes:
+if [[ ! $(cat /bin/update-os | grep 'cihsudq') ]]; then
+	read -p "Would you like to update the update-os script? This update includes:
 	* Adds a quiet option
 	* Adds a new display option to print more user friendly output
 Would you like to update? [y/N]: " ans
-if [[ "$ans" == "y" ]] || [[ "$ans" == "Y" ]]; then
-	echo -e "\nUpdating update-os . . .\n"
-	pkexec rm /bin/update-os
-	pkexec echo "#!/bin/bash
+	if [[ "$ans" == "y" ]] || [[ "$ans" == "Y" ]]; then
+		echo -e "\nUpdating update-os . . .\n"
+		pkexec rm /bin/update-os
+		pkexec echo "#!/bin/bash
 # -*- coding: utf-8 -*-
 #
 #  update-os
@@ -192,7 +193,7 @@ if [[ "$ans" == "y" ]] || [[ "$ans" == "Y" ]]; then
 #  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
 #  MA 02110-1301, USA.
 #" >> /bin/update-os
-	pkexec echo 'h="Update script for Drauger OS
+		pkexec echo 'h="Update script for Drauger OS
 -c  check for updates only, do not install them
 -i  install already downloaded updates
 -h  show this help dialog and exit
@@ -205,8 +206,8 @@ flag=0
 u=0
 q=0
 g=0' >> /bin/update-os
-	pkexec echo "while getopts 'cihsudq' flag; do" >> /bin/update-os
-	pkexec echo 'case "${flag}" in
+		pkexec echo "while getopts 'cihsudq' flag; do" >> /bin/update-os
+		pkexec echo 'case "${flag}" in
 		c) u=1 ;;
 		i) u=2 ;;
        	 	h) u=3 ;;
@@ -297,7 +298,8 @@ if [ $u -eq 7 ]; then
     exit 2
 fi
 done' >> /bin/update-os
-	pkexec chmod +x /bin/update-os
+		pkexec chmod +x /bin/update-os
+	fi
 fi
 notify-send "Updates Complete!"
 

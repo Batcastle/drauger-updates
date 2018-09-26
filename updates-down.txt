@@ -129,10 +129,10 @@ if [[ "$x" == *"7.3.6"* ]]; then
 		pkexec apt-get update && pkexec apt-get -y upgrade
 		pkexec apt-get -y install mesa-vulkan-drivers vulkan || pkexec apt-get -y install mesa-vulkan-drivers
 		pkexec rm /usr/drauger/updates-config/os-info.txt
-		pkexec echo """7.3.7 "Revenant"""" >> /usr/drauger/updates-config/os-info.txt
+		pkexec echo "7.3.7 'Revenant'" >> /usr/drauger/updates-config/os-info.txt
 		echo -e "\nUpdating lsb_release . . .\n"
 		pkexec rm /etc/lsb-release && pkexec echo -e "DISTRIB_ID=DraugerOS\nDISTRIB_RELEASE=7.3.7\nDISTRIB_CODENAME=revenant\nDISTRIB_DESCRIPTION='Drauger OS 7.3.7 Revenant" >> /etc/lsb-release
-		pkexec rm /usr/lib/os-release && pkexec echo $LSB >> /usr/lib/os-release
+		pkexec rm /usr/lib/os-release && pkexec echo "$LSB" >> /usr/lib/os-release
 		pkexec chattr +i /usr/lib/os-release
 		pkexec chattr +i /etc/lsb-release
 		echo -e "\nThe files /usr/lib/os-release and /etc/lsb-release have been made immutable.\nTo change this and allow them to be edited by the root user again, run\n\n'sudo chattr -i /usr/lib/os-release'\n\nand\n\n'sudo chattr -i /etc/lsb-release'\n"
@@ -143,19 +143,14 @@ if [[ "$x" == *"7.3.6"* ]]; then
 		echo -e "\nCanceling Update . . .\nIf you change your mind, please run 'sudo update-os -i'.\nThank you for using Drauger OS!\n"	
 	fi
 fi
-read -p "Did you manually install Drauger OS 7.3.7 from the ISO? [y/N]: " ans
-if [[ "$ans" == "y" ]] || [ "$ans" == "Y" ]]; then
-	echo -e "\nUpdating lsb_release . . .\n"
-	pkexec rm /etc/lsb-release && pkexec echo -e "DISTRIB_ID=DraugerOS\nDISTRIB_RELEASE=7.3.7\nDISTRIB_CODENAME=revenant\nDISTRIB_DESCRIPTION='Drauger OS 7.3.7 Revenant" >> /etc/lsb-release
-	pkexec rm /usr/lib/os-release && pkexec echo $LSB >> /usr/lib/os-release
-	pkexec chattr +i /usr/lib/os-release
-	pkexec chattr +i /etc/lsb-release
-	echo -e "\nThe files /usr/lib/os-release and /etc/lsb-release have been made immutable.\nTo change this and allow them to be edited by the root user again, run\n\n'sudo chattr -i /usr/lib/os-release'\n\nand\n\n'sudo chattr -i /etc/lsb-release'\n"
-fi
 if [[ $(cat /usr/lib/os-release) != "$LSB" ]]; then
-	pkexec chattr +i /usr/lib/os-release
-	pkexec chattr +i /etc/lsb-release
-	echo -e "\nThe files /usr/lib/os-release and /etc/lsb-release have been made immutable.\nTo change this and allow them to be edited by the root user again, run\n\n'sudo chattr -i /usr/lib/os-release'\n\nand\n\n'sudo chattr -i /etc/lsb-release'\n"
+	if [[ $(cat /usr/drauger/updates-config/os-info.txt) == "7.3.7 'Revenant'" ]]; then
+		pkexec rm /etc/lsb-release && pkexec echo -e "DISTRIB_ID=DraugerOS\nDISTRIB_RELEASE=7.3.7\nDISTRIB_CODENAME=revenant\nDISTRIB_DESCRIPTION='Drauger OS 7.3.7 Revenant" >> /etc/lsb-release
+		pkexec rm /usr/lib/os-release && pkexec echo "$LSB" >> /usr/lib/os-release
+		pkexec chattr +i /usr/lib/os-release
+		pkexec chattr +i /etc/lsb-release
+		echo -e "\nThe files /usr/lib/os-release and /etc/lsb-release have been made immutable.\nTo change this and allow them to be edited by the root user again, run\n\n'sudo chattr -i /usr/lib/os-release'\n\nand\n\n'sudo chattr -i /etc/lsb-release'\n"
+	fi
 fi
 if [[ $(dpkg-query -W -f='${Status}' libtxc-dxtn-s2tc0 2>/dev/null | grep -c "ok installed") == "0" ]]; then
 	echo -e "\nApplying Attempted Xfce Steam Compatabilty Fix.\n"
@@ -305,6 +300,7 @@ notify-send "Updates Complete!"
 
 
 # NOTHING FROM HERE DOWN IS CODE. ONLY COMMENTS.
-## The code from the last update updated the script `update-os`
-## It added a quiet option (called by passing a -q, must be passed before any other option.)
-## It also added a "display" option (called by passing -d) which gives a more user-friendly print out
+## This Update is for fixing an error induced by the recent reset of /usr/lib/os-release and /etc/lsb-release
+## It now also checks for Drauger OS Version 7.3.6, in case someone decided not to update
+## (which you really should if you haven't)
+

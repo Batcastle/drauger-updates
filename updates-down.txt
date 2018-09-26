@@ -131,6 +131,8 @@ if [[ "$x" == *"7.3.6"* ]]; then
 		pkexec rm /usr/drauger/updates-config/os-info.txt
 		pkexec echo "7.3.7 'Revenant'" >> /usr/drauger/updates-config/os-info.txt
 		echo -e "\nUpdating lsb_release . . .\n"
+		pkexec chattr -i /usr/lib/os-release
+		pkexec chattr -i /etc/lsb-release
 		pkexec rm /etc/lsb-release && pkexec echo -e "DISTRIB_ID=DraugerOS\nDISTRIB_RELEASE=7.3.7\nDISTRIB_CODENAME=revenant\nDISTRIB_DESCRIPTION='Drauger OS 7.3.7 Revenant" >> /etc/lsb-release
 		pkexec rm /usr/lib/os-release && pkexec echo "$LSB" >> /usr/lib/os-release
 		pkexec chattr +i /usr/lib/os-release
@@ -145,6 +147,8 @@ if [[ "$x" == *"7.3.6"* ]]; then
 fi
 if [[ $(cat /usr/lib/os-release) != "$LSB" ]]; then
 	if [[ $(cat /usr/drauger/updates-config/os-info.txt) == "7.3.7 'Revenant'" ]]; then
+		pkexec chattr -i /usr/lib/os-release
+		pkexec chattr -i /etc/lsb-release
 		pkexec rm /etc/lsb-release && pkexec echo -e "DISTRIB_ID=DraugerOS\nDISTRIB_RELEASE=7.3.7\nDISTRIB_CODENAME=revenant\nDISTRIB_DESCRIPTION='Drauger OS 7.3.7 Revenant" >> /etc/lsb-release
 		pkexec rm /usr/lib/os-release && pkexec echo "$LSB" >> /usr/lib/os-release
 		pkexec chattr +i /usr/lib/os-release
@@ -297,10 +301,8 @@ done' >> /bin/update-os
 	fi
 fi
 notify-send "Updates Complete!"
-
-
 # NOTHING FROM HERE DOWN IS CODE. ONLY COMMENTS.
 ## This Update is for fixing an error induced by the recent reset of /usr/lib/os-release and /etc/lsb-release
 ## It now also checks for Drauger OS Version 7.3.6, in case someone decided not to update
 ## (which you really should if you haven't)
-
+## Furthermore, it also ensures they are mutable before erasing them and rewritting them

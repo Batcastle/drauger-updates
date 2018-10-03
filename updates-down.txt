@@ -4,19 +4,15 @@
 # update-down.txt
 #
 #
-if [ ! -e /usr/drauger/updates-config/beta_2.flag ]; then
-  if [ ! -e /usr/drauger/updates-config/beta_3.flag ]; then
-    if [ ! -e /usr/drauger/updates-config/stable.flag ]; then
+if [ ! -e /usr/drauger/updates-config/beta_2.flag ] && [ ! -e /usr/drauger/updates-config/beta_3.flag ] && [ ! -e /usr/drauger/updates-config/stable.flag ]; then
       read -p "Did you initially install Drauger OS 7.3.6 when it was in Beta 2 or in Beta 3? [2/3]: " b
       if [[ "$b" == "2" ]]; then
          touch /usr/drauger/updates-config/beta_2.flag
+      elif [[ "$b" == "3" ]]; then
+         touch /usr/drauger/updates-config/beta_3.flag
       else
-        if [[ "$b" == "3" ]]; then
-          touch /usr/drauger/updates-config/beta_3.flag
-        else
-          echo "input not recognized. Please run 'sudo update-os -i' and retry"
-          exit 2
-        fi
+         echo "input not recognized. Please run 'sudo update-os -i' and retry"
+         exit 2
       fi
     fi
   fi
@@ -145,16 +141,14 @@ if [[ "$x" == *"7.3.6"* ]]; then
 		echo -e "\nCanceling Update . . .\nIf you change your mind, please run 'sudo update-os -i'.\nThank you for using Drauger OS!\n"	
 	fi
 fi
-if [[ $(cat /usr/lib/os-release) != "$LSB" ]]; then
-	if [[ $(cat /usr/drauger/updates-config/os-info.txt) == "7.3.7 'Revenant'" ]]; then
-		pkexec chattr -i /usr/lib/os-release
-		pkexec chattr -i /etc/lsb-release
-		pkexec rm /etc/lsb-release && pkexec echo -e "DISTRIB_ID=DraugerOS\nDISTRIB_RELEASE=7.3.7\nDISTRIB_CODENAME=revenant\nDISTRIB_DESCRIPTION='Drauger OS 7.3.7 Revenant" >> /etc/lsb-release
-		pkexec rm /usr/lib/os-release && pkexec echo "$LSB" >> /usr/lib/os-release
-		pkexec chattr +i /usr/lib/os-release
-		pkexec chattr +i /etc/lsb-release
-		echo -e "\nThe files /usr/lib/os-release and /etc/lsb-release have been made immutable.\nTo change this and allow them to be edited by the root user again, run\n\n'sudo chattr -i /usr/lib/os-release'\n\nand\n\n'sudo chattr -i /etc/lsb-release'\n"
-	fi
+if [[ $(cat /usr/lib/os-release) != "$LSB" ]] && [[ $(cat /usr/drauger/updates-config/os-info.txt) == "7.3.7 'Revenant'" ]]; then
+	pkexec chattr -i /usr/lib/os-release
+	pkexec chattr -i /etc/lsb-release
+	pkexec rm /etc/lsb-release && pkexec echo -e "DISTRIB_ID=DraugerOS\nDISTRIB_RELEASE=7.3.7\nDISTRIB_CODENAME=revenant\nDISTRIB_DESCRIPTION='Drauger OS 7.3.7 Revenant" >> /etc/lsb-release
+	pkexec rm /usr/lib/os-release && pkexec echo "$LSB" >> /usr/lib/os-release
+	pkexec chattr +i /usr/lib/os-release
+	pkexec chattr +i /etc/lsb-release
+	echo -e "\nThe files /usr/lib/os-release and /etc/lsb-release have been made immutable.\nTo change this and allow them to be edited by the root user again, run\n\n'sudo chattr -i /usr/lib/os-release'\n\nand\n\n'sudo chattr -i /etc/lsb-release'\n"
 fi
 if [[ $(dpkg-query -W -f='${Status}' libtxc-dxtn-s2tc0 2>/dev/null | grep -c "ok installed") == "0" ]]; then
 	echo -e "\nApplying Attempted Xfce Steam Compatabilty Fix.\n"
@@ -300,9 +294,24 @@ done' >> /bin/update-os
 		pkexec chmod +x /bin/update-os
 	fi
 fi
+if [[ ! $(apt search steam-login | grep "installed") ]] && [[ ! $(apt search steam-session | grep "installed") ]] && [[ ! -e /usr/drauger/updates-config/leg6.config ]]; then
+	echo ""
+	read -p "Would you like to add Steam Big Picture Mode to your login Desktop Environment options list? (If you don't know what this means, please enter "N") [y/N]: " ans
+	echo ""
+	if [[ "$ans" == "Y" ]] || [[ "$ans" == "y" ]]; then
+		wget https://github.com/Batcastle/drauger-updates/raw/master/leg6/steam-session_11_all.deb
+		pkexec apt-get -y install $(pwd)/steam-session_11_all.deb
+		echo -e "\nThis new update requires a system restart in order to take effect. However, feel free to\ncontinue using your system normally as long as you wish.\n"
+	else
+		echo -e "\nIf you change your mind, you can go to {https://github.com/thor27/steam-login} and download the install files\nfrom the link in the README, or install from source.\n"
+		pkexec echo "OPT_IN=no" >> /usr/drauger/updates-config/leg6.config
+	fi
+fi
 notify-send "Updates Complete!"
 # NOTHING FROM HERE DOWN IS CODE. ONLY COMMENTS.
-## This Update is for fixing an error induced by the recent reset of /usr/lib/os-release and /etc/lsb-release
-## It now also checks for Drauger OS Version 7.3.6, in case someone decided not to update
-## (which you really should if you haven't)
-## Furthermore, it also ensures they are mutable before erasing them and rewritting them
+## This update will do two things:
+## 	* Streamline syntax of this script {updates-down.txt}
+## 	* Install steam-session which allows a user to log directly into Steam Big Picture Mode
+##
+## The syntax of this script is already taken care of Github-side.
+## Installation of "steam-session" is entirely optional and your choice should be persistent.

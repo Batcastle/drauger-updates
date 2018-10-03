@@ -23,7 +23,7 @@
 
 #	Step 1: Since this app is openarena, `install.zombie` will auto-remove openarena and all it's dependencies from the previous apt version
 echo -e "\n \nRemoving conflicting packages . . . \n"
-apt-get -y purge --autoremove openarena
+apt-get -y remove --autoremove openarena
 
 #	Step 3: `install.zombie` will autoinstall the dependencies this new version will rely on
 echo -e "\nInstalling dependencies . . . \n"
@@ -32,34 +32,31 @@ apt-get -y install libc6
 #	Step 4: Since there should no longer be any individual files we need to remove, we can skip ahead a bit.
 #		Now, `install.zombie` will move all the necessary files for openarena to a directory all it's own, to keep it contained
 
-mkdir $1/.openarena
-wget http://download.tuxfamily.org/openarena/rel/088/openarena-0.8.8.zip -o "$1"/openarena-0.8.8.zip
-unzip openarena-0.8.8.zip -d "$1"
+mkdir "$HOME"/.openarena
+wget -O "$HOME"/openarena-0.8.8.zip http://download.tuxfamily.org/openarena/rel/088/openarena-0.8.8.zip
+unzip openarena-0.8.8.zip -d "$HOME"
+cp -rv "$HOME"/openarena-0.8.8 "$HOME"/.openarena
 
 
 #	Step 5: remove any unnecessary files (please note not all of them where removed. Some where left, just in case they were actually needed.)
-rm -r $1/openarena-0.8.8/oa_ded.exe $1/openarena-0.8.8/openarena.exe $1/openarena-0.8.8/openarena.i386 $1/openarena-0.8.8/readme_085.txt "$1"/openarena-0.8.8.zip
+rm -r "$HOME"/.openarena/oa_ded.exe "$HOME"/.openarena/openarena.exe "$HOME"/.openarena/openarena.i386 "$HOME"/.openarena/readme_085.txt "$HOME"/openarena-0.8.8.zip "$HOME"/openarena-0.8.8
 
 #	Step 6: Generate any files left over
-#echo "[Desktop Entry]
-#Name=OpenArena
-#Version=1.0
-#Exec=$HOME/openarena-0.8.8/openarena.x86_64
-#Comment=fast-paced 3D first-person shooter
-#Icon=openarena128
-#Type=Application
-#Terminal=false
-#StartupNotify=true
-#Encoding=UTF-8
-#Categories=Game;" >> /usr/share/applications/OpenArena.desktop
+pkexec echo "[Desktop Entry]
+Encoding=UTF-8
+Name=Open Arena
+Comment=CUSTOM
+Type=Application
+Exec=/home/batcastle/openarena-0.8.8/openarena.x86_64
+Icon=openarena
+Categories=games" >> /usr/share/applications/OpenArena.desktop
 #chmod +x /usr/share/applications/OpenArena.desktop
-sudo wget https://raw.githubusercontent.com/Batcastle/drauger-updates/master/leg4/OpenArena.desktop -o /usr/share/applications/openarena.desktop
-sudo wget https://raw.githubusercontent.com/Batcastle/drauger-updates/master/leg4/rm_openarena -o /bin/rm_openarena
-chmod +x /bin/rm_openarena
+#sudo wget https://raw.githubusercontent.com/Batcastle/drauger-updates/master/leg4/OpenArena.desktop -o /usr/share/applications/openarena.desktop
+pkexec wget -O /bin/rm_openarena https://raw.githubusercontent.com/Batcastle/drauger-updates/master/leg4/rm_openarena
+pkexec chmod +x /bin/rm_openarena
 
 
-#	Step 7: reset $pass to null so that it makes it harder to steal someone's password, afterwards, notify of completion
-pass=null
+#	Step 7: Notify of completion
 echo -e "Installation complete.\n"
 
 ##EOF##

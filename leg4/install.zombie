@@ -49,7 +49,7 @@ Encoding=UTF-8
 Name=Open Arena
 Comment=CUSTOM
 Type=Application
-Exec=/home/batcastle/openarena-0.8.8/openarena.x86_64
+Exec=$HOME/.openarena/openarena.x86_64
 Icon=openarena
 Categories=games" >> /usr/share/applications/OpenArena.desktop
 #chmod +x /usr/share/applications/OpenArena.desktop

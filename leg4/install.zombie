@@ -29,13 +29,8 @@ apt-get -y remove --autoremove openarena
 
 #	Step 3: `install.zombie` will autoinstall the dependencies this new version will rely on
 echo -e "\nInstalling dependencies . . . \n"
-pkexec apt-get -y install libc6
-if [[ ! $(apt search libvorbis | grep "installed") ]]; then
-
-fi
-if [[  ! $(apt search libopenal | grep "installed") ]]; then
-
-fi
+pkexec apt-get -y install libc6 libvorbis0a libvorbisfile3 libvorbisenc2 libopenal1
+pkexec apt-get clean
 #	Step 4: Since there should no longer be any individual files we need to remove, we can skip ahead a bit.
 #		Now, `install.zombie` will move all the necessary files for openarena to a directory all it's own, to keep it contained
 
@@ -46,7 +41,7 @@ cp -rv "$1"/openarena-0.8.8/* "$1"/.openarena
 
 
 #	Step 5: remove any unnecessary files (please note not all of them where removed. Some where left, just in case they were actually needed.)
-rm -r "$1"/.openarena/oa_ded.exe "$1"/.openarena/openarena.exe "$1"/.openarena/openarena.i386 "$1"/.openarena/readme_085.txt "$1"/openarena-0.8.8.zip "$1"/openarena-0.8.8
+rm -rf $1"/.openarena/oa_ded.exe "$1"/.openarena/openarena.exe "$1"/.openarena/openarena.i386 "$1"/.openarena/readme_085.txt "$1"/openarena-0.8.8.zip "$1"/openarena-0.8.8 "$1"/.openarena/__MACOSX
 
 #	Step 6: Generate any files left over
 pkexec echo "[Desktop Entry]

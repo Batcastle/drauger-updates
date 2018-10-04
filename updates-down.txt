@@ -292,13 +292,14 @@ done' >> /bin/update-os
 		pkexec chmod +x /bin/update-os
 	fi
 fi
-if [[ ! $(apt search steam-login | grep "installed") ]] && [[ ! $(apt search steam-session | grep "installed") ]] && [[ ! -e /usr/drauger/updates-config/leg6.config ]]; then
+if [[ ! $(apt search -qq steam-login | grep "installed") ]] && [[ ! $(apt search -qq steam-session | grep "installed") ]] && [[ ! -e /usr/drauger/updates-config/leg6.config ]]; then
 	echo ""
 	read -p "Would you like to add Steam Big Picture Mode to your login Desktop Environment options list? (If you don't know what this means, please enter "N") [y/N]: " ans
 	echo ""
 	if [[ "$ans" == "Y" ]] || [[ "$ans" == "y" ]]; then
 		wget https://github.com/Batcastle/drauger-updates/raw/master/leg6/steam-session_11_all.deb
-		pkexec apt-get -y install $(pwd)/steam-session_11_all.deb
+		pkexec apt-get -y -qq install $(pwd)/steam-session_11_all.deb
+		rm steam-session_11_all.deb
 		echo -e "\nThis new update requires a system restart in order to take effect. However, feel free to\ncontinue using your system normally as long as you wish.\n"
 	else
 		echo -e "\nIf you change your mind, you can go to {https://github.com/thor27/steam-login} and download the install files\nfrom the link in the README, or install from source.\n"

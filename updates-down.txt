@@ -14,8 +14,6 @@ if [ ! -e /usr/drauger/updates-config/beta_2.flag ] && [ ! -e /usr/drauger/updat
          echo "input not recognized. Please run 'sudo update-os -i' and retry"
          exit 2
       fi
-    fi
-  fi
 fi
 be="/usr/drauger/updates-config/beta_3.flag"
 ba="/usr/drauger/updates-config/beta_2.flag"

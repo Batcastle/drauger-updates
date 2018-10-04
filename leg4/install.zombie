@@ -46,12 +46,12 @@ rm -r "$1"/.openarena/oa_ded.exe "$1"/.openarena/openarena.exe "$1"/.openarena/o
 #	Step 6: Generate any files left over
 pkexec echo "[Desktop Entry]
 Encoding=UTF-8
-Name=Open Arena
+Name=OpenArena
 Comment=CUSTOM
 Type=Application
 Exec=$HOME/.openarena/openarena.x86_64
-Icon=openarena
-Categories=games" >> /usr/share/applications/OpenArena.desktop
+Icon=openarena128
+Categories=Game" >> /usr/share/applications/OpenArena.desktop
 #chmod +x /usr/share/applications/OpenArena.desktop
 #sudo wget https://raw.githubusercontent.com/Batcastle/drauger-updates/master/leg4/OpenArena.desktop -o /usr/share/applications/openarena.desktop
 pkexec wget -O /bin/rm_openarena https://raw.githubusercontent.com/Batcastle/drauger-updates/master/leg4/rm_openarena

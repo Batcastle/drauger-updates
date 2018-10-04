@@ -36,7 +36,7 @@ apt-get -y install libc6
 
 mkdir "$1"/.openarena
 wget -O "$1"/openarena-0.8.8.zip http://download.tuxfamily.org/openarena/rel/088/openarena-0.8.8.zip
-unzip openarena-0.8.8.zip -d "$1"
+unzip "$1"/openarena-0.8.8.zip -d "$1"
 cp -rv "$1"/openarena-0.8.8 "$1"/.openarena
 
 

@@ -20,7 +20,7 @@
 #  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
 #  MA 02110-1301, USA.
 if [[ ! $(echo "$1" | grep '/home') ]]; then
-    echo "Please provide the home directory path."
+    echo -e "Please provide the home directory path.\nPlease also ensure the file path DOES NOT end with a /"
     exit 1
 fi
 #	Step 1: Since this app is openarena, `install.zombie` will auto-remove openarena and all it's dependencies from the previous apt version

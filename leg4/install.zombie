@@ -41,7 +41,7 @@ cp -rv "$1"/openarena-0.8.8 "$1"/.openarena
 
 
 #	Step 5: remove any unnecessary files (please note not all of them where removed. Some where left, just in case they were actually needed.)
-rm -r "$1"/.openarena/oa_ded.exe "$1"/.openarena/openarena.exe "$1"/.openarena/openarena.i386 "$1"/.openarena/readme_085.txt "$HOME"/openarena-0.8.8.zip "$1"/openarena-0.8.8.zip
+rm -r "$1"/.openarena/oa_ded.exe "$1"/.openarena/openarena.exe "$1"/.openarena/openarena.i386 "$1"/.openarena/readme_085.txt "$1"/openarena-0.8.8.zip "$1"/openarena-0.8.8
 
 #	Step 6: Generate any files left over
 pkexec echo "[Desktop Entry]

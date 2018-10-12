@@ -306,11 +306,20 @@ if [[ ! $(apt search -qq steam-login | grep "installed") ]] && [[ ! $(apt search
 		pkexec echo "OPT_IN=no" >> /usr/drauger/updates-config/leg6.config
 	fi
 fi
+if [ $(apt-get update) | grep "E: Repository 'http://ppa.launchpad.net/oibaf/graphics-drivers/ubuntu bionic InRelease' changed its 'Label' value from 'Updated Open Graphics Drivers' to 'Updated Open Graphics Drivers - since 2011!'" ]; then
+	rm /etc/apt/sources.list.d/oibaf-ubuntu-graphics-drivers-bionic.list /etc/apt/sources.list.d/oibaf-ubuntu-graphics-drivers-bionic.list.save
+	apt-get update
+	add-apt-repository -y ppa:oibaf/graphics-drivers
+	apt-get update && apt-get -y upgrade && apt-get -y autoremove && apt-get clean
+fi
 notify-send "Updates Complete!"
 # NOTHING FROM HERE DOWN IS CODE. ONLY COMMENTS.
-## This update will do two things:
-## 	* Streamline syntax of this script {updates-down.txt}
-## 	* Install steam-session which allows a user to log directly into Steam Big Picture Mode
 ##
-## The syntax of this script is already taken care of Github-side.
-## Installation of "steam-session" is entirely optional and your choice should be persistent.
+## This update fixes a new bug introduced by the maintainer of the repository for graphics drivers changing the repo
+## description. This update removes the broken repo from the system,
+## updates the repo cache, then re-adds it. Afterwards it goes ahead and updates the repo cache,
+## downloads and installs any updates from apt, and then removes anything unnecessary. Afterwards it cleans up after itself.
+##
+## If you wish to continue using Drauger OS and installing software from any of the repos,
+## you may want to install this update.
+##

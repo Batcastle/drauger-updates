@@ -306,7 +306,8 @@ if [[ ! $(apt search -qq steam-login | grep "installed") ]] && [[ ! $(apt search
 		pkexec echo "OPT_IN=no" >> /usr/drauger/updates-config/leg6.config
 	fi
 fi
-if [[ $(apt-get update | grep 'N: This must be accepted explicitly before updates for this repository can be applied.') ]]; then
+apt-get update
+if [[ $? != 0 ]]; then
 	rm /etc/apt/sources.list.d/oibaf-ubuntu-graphics-drivers-bionic.list /etc/apt/sources.list.d/oibaf-ubuntu-graphics-drivers-bionic.list.save
 	apt-get update
 	add-apt-repository -y ppa:oibaf/graphics-drivers

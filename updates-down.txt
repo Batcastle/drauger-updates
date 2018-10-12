@@ -81,7 +81,7 @@ fi
 if [ ! -e /usr/drauger/updates-config/leg3.config ]; then
   read -p "Would you like to uninstall 'drauger-os-tutorial? [Y/n]: " o
   if [[ "$o" == "Y" ]] || [[ "$o" == "y" ]]; then
-    pkexec apt-get purge -y drauger-os-tutorial
+    apt-get purge -y drauger-os-tutorial
     echo "OPT_IN=yes" >> /usr/drauger/updates-config/leg3.config
   else
     echo "OPT_IN=no" >> /usr/drauger/updates-config/leg3.config
@@ -92,7 +92,7 @@ if [ ! -e /usr/drauger/updates-config/leg5.config ]; then
   if [[ "$a" == "Y" ]] || [[ "$a" == "y" ]]; then
     echo "OPT_IN=yes" >> /usr/drauger/updates-config/leg5.config
     wget https://github.com/Batcastle/drauger-updates/raw/master/leg5/drauger-store_0.0.9_all.deb
-    pkexec dpkg -i drauger-store_0.0.9_all.deb && echo "Updates complete!" || echo -e "We're sorry. The Drauger Store did not install.\nPlease email draugeros@gmail.com for help."
+    dpkg -i drauger-store_0.0.9_all.deb && echo "Updates complete!" || echo -e "We're sorry. The Drauger Store did not install.\nPlease email draugeros@gmail.com for help."
     rm $HOME/drauger-store_0.0.9_all.deb
   else
     echo "OPT_IN=no" >> /usr/drauger/updates-config/leg5.config
@@ -117,41 +117,41 @@ if [[ "$x" == *"7.3.6"* ]]; then
 	if [ "$mark" == "Y" ] || [ "$mark" == "y" ]; then
 		echo -e "\nStarting Update Process . . .\nYour screen may blink during this process. If so, do not be alarmed.\nPlease do not shut off or restart your computer until notified that the update is complete.\n"
 		sleep 5s
-		pkexec apt-get -y install libvulkan1 libvulkan-dev vulkan-utils
-		pkexec add-apt-repository -y ppa:oibaf/graphics-drivers
-		pkexec add-apt-repository -y ppa:graphics-drivers/ppa
-		pkexec apt-get update && pkexec apt-get -y upgrade
-		pkexec apt-get -y install mesa-vulkan-drivers vulkan || pkexec apt-get -y install mesa-vulkan-drivers
-		pkexec rm /usr/drauger/updates-config/os-info.txt
-		pkexec echo "7.3.7 'Revenant'" >> /usr/drauger/updates-config/os-info.txt
+		apt-get -y install libvulkan1 libvulkan-dev vulkan-utils
+		add-apt-repository -y ppa:oibaf/graphics-drivers
+		add-apt-repository -y ppa:graphics-drivers/ppa
+		apt-get update && pkexec apt-get -y upgrade
+		apt-get -y install mesa-vulkan-drivers vulkan || pkexec apt-get -y install mesa-vulkan-drivers
+		rm /usr/drauger/updates-config/os-info.txt
+		echo "7.3.7 'Revenant'" >> /usr/drauger/updates-config/os-info.txt
 		echo -e "\nUpdating lsb_release . . .\n"
-		pkexec chattr -i /usr/lib/os-release
-		pkexec chattr -i /etc/lsb-release
-		pkexec rm /etc/lsb-release && pkexec echo -e "DISTRIB_ID=DraugerOS\nDISTRIB_RELEASE=7.3.7\nDISTRIB_CODENAME=revenant\nDISTRIB_DESCRIPTION='Drauger OS 7.3.7 Revenant" >> /etc/lsb-release
-		pkexec rm /usr/lib/os-release && pkexec echo "$LSB" >> /usr/lib/os-release
-		pkexec chattr +i /usr/lib/os-release
-		pkexec chattr +i /etc/lsb-release
+		chattr -i /usr/lib/os-release
+		chattr -i /etc/lsb-release
+		rm /etc/lsb-release && pkexec echo -e "DISTRIB_ID=Ubuntu\nDISTRIB_RELEASE=7.3.7\nDISTRIB_CODENAME=bionic\nDISTRIB_DESCRIPTION='Drauger OS 7.3.7 Revenant" >> /etc/lsb-release
+		rm /usr/lib/os-release && pkexec echo "$LSB" >> /usr/lib/os-release
+		chattr +i /usr/lib/os-release
+		chattr +i /etc/lsb-release
 		echo -e "\nThe files /usr/lib/os-release and /etc/lsb-release have been made immutable.\nTo change this and allow them to be edited by the root user again, run\n\n'sudo chattr -i /usr/lib/os-release'\n\nand\n\n'sudo chattr -i /etc/lsb-release'\n"
-		pkexec apt-get -y autoremove
-		pkexec apt-get -y clean
+		apt-get -y autoremove
+		apt-get -y clean
 		echo -e "\nThank you for updating to the latest version of Drauger OS. The updates have been completed.\nIt is advised to restart your computer to ensure all changes take effect.\nWe hope you enjoy the new version of Drauger OS!\n"""
 	else
 		echo -e "\nCanceling Update . . .\nIf you change your mind, please run 'sudo update-os -i'.\nThank you for using Drauger OS!\n"	
 	fi
 fi
 if [[ $(cat /usr/lib/os-release) != "$LSB" ]] && [[ $(cat /usr/drauger/updates-config/os-info.txt) == "7.3.7 'Revenant'" ]]; then
-	pkexec chattr -i /usr/lib/os-release
-	pkexec chattr -i /etc/lsb-release
-	pkexec rm /etc/lsb-release && pkexec echo -e "DISTRIB_ID=DraugerOS\nDISTRIB_RELEASE=7.3.7\nDISTRIB_CODENAME=revenant\nDISTRIB_DESCRIPTION='Drauger OS 7.3.7 Revenant" >> /etc/lsb-release
-	pkexec rm /usr/lib/os-release && pkexec echo "$LSB" >> /usr/lib/os-release
-	pkexec chattr +i /usr/lib/os-release
-	pkexec chattr +i /etc/lsb-release
+	chattr -i /usr/lib/os-release
+	chattr -i /etc/lsb-release
+	rm /etc/lsb-release && pkexec echo -e "DISTRIB_ID=Ubuntu\nDISTRIB_RELEASE=7.3.7\nDISTRIB_CODENAME=bionic\nDISTRIB_DESCRIPTION='Drauger OS 7.3.7 Revenant" >> /etc/lsb-release
+	rm /usr/lib/os-release && pkexec echo "$LSB" >> /usr/lib/os-release
+	chattr +i /usr/lib/os-release
+	chattr +i /etc/lsb-release
 	echo -e "\nThe files /usr/lib/os-release and /etc/lsb-release have been made immutable.\nTo change this and allow them to be edited by the root user again, run\n\n'sudo chattr -i /usr/lib/os-release'\n\nand\n\n'sudo chattr -i /etc/lsb-release'\n"
 fi
 if [[ $(dpkg-query -W -f='${Status}' libtxc-dxtn-s2tc0 2>/dev/null | grep -c "ok installed") == "0" ]]; then
 	echo -e "\nApplying Attempted Xfce Steam Compatabilty Fix.\n"
 	wget http://ftp.us.debian.org/debian/pool/main/s/s2tc/libtxc-dxtn-s2tc0_0~git20131104-1.1_amd64.deb
-	pkexec apt-get -y install $(pwd)/libtxc-dxtn-s2tc0_0~git20131104-1.1_amd64.deb
+	apt-get -y install $(pwd)/libtxc-dxtn-s2tc0_0~git20131104-1.1_amd64.deb
 	rm libtxc-dxtn-s2tc0_0~git20131104-1.1_amd64.deb
 fi
 if [[ ! $(cat /bin/update-os | grep 'cihsudq') ]]; then
@@ -161,8 +161,8 @@ if [[ ! $(cat /bin/update-os | grep 'cihsudq') ]]; then
 Would you like to update? [y/N]: " ans
 	if [[ "$ans" == "y" ]] || [[ "$ans" == "Y" ]]; then
 		echo -e "\nUpdating update-os . . .\n"
-		pkexec rm /bin/update-os
-		pkexec echo "#!/bin/bash
+		rm /bin/update-os
+		echo "#!/bin/bash
 # -*- coding: utf-8 -*-
 #
 #  update-os
@@ -289,7 +289,7 @@ if [ $u -eq 7 ]; then
     exit 2
 fi
 done' >> /bin/update-os
-		pkexec chmod +x /bin/update-os
+		chmod +x /bin/update-os
 	fi
 fi
 if [[ ! $(apt search -qq steam-login | grep "installed") ]] && [[ ! $(apt search -qq steam-session | grep "installed") ]] && [[ ! -e /usr/drauger/updates-config/leg6.config ]]; then
@@ -298,20 +298,37 @@ if [[ ! $(apt search -qq steam-login | grep "installed") ]] && [[ ! $(apt search
 	echo ""
 	if [[ "$ans" == "Y" ]] || [[ "$ans" == "y" ]]; then
 		wget https://github.com/Batcastle/drauger-updates/raw/master/leg6/steam-session_11_all.deb
-		pkexec apt-get -y -qq install $(pwd)/steam-session_11_all.deb
+		apt-get -y -qq install $(pwd)/steam-session_11_all.deb
 		rm steam-session_11_all.deb
 		echo -e "\nThis new update requires a system restart in order to take effect. However, feel free to\ncontinue using your system normally as long as you wish.\n"
 	else
 		echo -e "\nIf you change your mind, you can go to {https://github.com/thor27/steam-login} and download the install files\nfrom the link in the README, or install from source.\n"
-		pkexec echo "OPT_IN=no" >> /usr/drauger/updates-config/leg6.config
+		echo "OPT_IN=no" >> /usr/drauger/updates-config/leg6.config
 	fi
 fi
 apt-get update
 if [[ $? != 0 ]]; then
 	rm /etc/apt/sources.list.d/oibaf-ubuntu-graphics-drivers-bionic.list /etc/apt/sources.list.d/oibaf-ubuntu-graphics-drivers-bionic.list.save
 	apt-get update
+	if [[ $? != 0 ]]; then
+		if [[ $(cat /etc/lsb-release | grep "DISTRIB_ID=DraugerOS") ]]; then
+			chattr -i /etc/lsb-release
+			sed -i "s/DISTRIB_ID=DraugerOS/DISTRIB_ID=Ubuntu/g"
+			sed -i "s/DISTRIB_CODENAME=revenant/DISTRIB_CODENAME=bionic/g"
+			chattr +i /etc/lsb-release
+		fi
+	else
+		echo -e "\nIt seems you have an issue with apt that updates-down.txt cannot address.\nPlease visit https://draugeros.ml/page1.html to let us know about this issue.\n" && exit 2
+	fi	
 	add-apt-repository -y ppa:oibaf/graphics-drivers
-	apt-get update && apt-get -y upgrade && apt-get -y autoremove && apt-get clean
+	apt-get update && apt-get -y upgrade && apt-get -y autoremove && apt-get clean || echo -e "\nIt seems you have an issue with apt that updates-down.txt cannot address.\nPlease visit https://draugeros.ml/page1.html to let us know about this issue.\n" && exit 2
+
+fi
+if [[ $(cat /etc/lsb-release | grep "DISTRIB_ID=DraugerOS") ]]; then
+		chattr -i /etc/lsb-release
+		sed -i "s/DISTRIB_ID=DraugerOS/DISTRIB_ID=Ubuntu/g"
+		sed -i "s/DISTRIB_CODENAME=revenant/DISTRIB_CODENAME=bionic/g"
+		chattr +i /etc/lsb-release
 fi
 notify-send "Updates Complete!"
 # NOTHING FROM HERE DOWN IS CODE. ONLY COMMENTS.
@@ -323,4 +340,13 @@ notify-send "Updates Complete!"
 ##
 ## If you wish to continue using Drauger OS and installing software from any of the repos,
 ## you may want to install this update.
+##
+## Also fixed an add-apt-repository issue by replacing 
+## DISTRIB_ID=DraugerOS
+## and
+## DISTRIB_CODENAME=revenant
+## with
+## DISTRIB_ID=Ubuntu
+## and
+## DISTRIB_CODENAME=bionic
 ##

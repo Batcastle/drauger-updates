@@ -13,5 +13,3 @@ Available commands include:
 * `update-os -s` to view the downloaded update script and see what updates there are
 * `sudo update-os -i` to manually run the currently downloaded update script
 * `update-os -h` to see the help dialogue
-
-A graphical user interface for this function will be availble starting Drauger OS 7.4.1 Beta 2

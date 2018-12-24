@@ -4,156 +4,6 @@
 # update-down.txt
 #
 #
-if [ ! -e /usr/drauger/updates-config/beta_2.flag ] && [ ! -e /usr/drauger/updates-config/beta_3.flag ] && [ ! -e /usr/drauger/updates-config/stable.flag ]; then
-      read -p "Did you initially install Drauger OS 7.3.6 when it was in Beta 2 or in Beta 3? [2/3]: " b
-      if [[ "$b" == "2" ]]; then
-         touch /usr/drauger/updates-config/beta_2.flag
-      elif [[ "$b" == "3" ]]; then
-         touch /usr/drauger/updates-config/beta_3.flag
-      else
-         echo "input not recognized. Please run 'sudo update-os -i' and retry"
-         exit 2
-      fi
-fi
-be="/usr/drauger/updates-config/beta_3.flag"
-ba="/usr/drauger/updates-config/beta_2.flag"
-st="/usr/drauger/updates-config/stable.flag"
-leg1_config="/usr/drauger/updates-config/leg1.config"
-leg2_config="/usr/drauger/updates-config/leg2.config"
-if [ ! -e "$leg1_config" ]; then
-  mkdir /usr/drauger
-  mkdir /usr/drauger/updates-config
-  if [ -e "$be" ]; then
-    echo "OPT_IN=yes" >> $leg1_config
-  else
-    read -p "Would you like to install legacy update 1? 
-  
-Updates include:
-  *new xboxdrv daemon
-
-(Y/n):" opt
-    if [[ "$opt" == "y" ]] || [[ "$opt" == "Y" ]]; then
-      echo "OPT_IN=yes" >> $leg1_config
-    else
-      echo "OPT_IN=no" >> $leg1_config
-    fi
-  fi
-else
-  leg1=$(cat $leg1_config)
-  if [[ "$leg1" == "OPT_IN=yes" ]]; then
-    if [ -e /bin/usb-scanner ]; then
-      opt="no"
-      read -p "You have legacy 1 updates enabled! This means you may install the latest update to the xboxdrv daemon.
-This update includes:
-  *Performance improvements to reduce CPU usage system wide
-
-Would you like to install this update? [Y/n]: " up_leg
-      if [[ "$up_leg" == "Y" ]] || [[ "$up_leg" == "y" ]]; then
-        echo "\nInstalling Updates. Please Wait. . . \n"
-        wget -O /bin/usb-scanner https://raw.githubusercontent.com/Batcastle/drauger-updates/master/leg1/usb-scanner
-        echo "UPDATE 1 COMPLETE" >> $leg1_config
-      fi
-    else
-      opt="yes"
-    fi
-  else
-    opt="no"
-  fi
-fi
-if [[ "$opt" == "yes" ]]; then
-  mkdir $HOME/.xboxdrv
-  wget -O /bin/usb-scanner https://raw.githubusercontent.com/Batcastle/drauger-updates/master/leg1/usb-scanner
-  wget -O $HOME/.xboxdrv/mounted.list https://raw.githubusercontent.com/Batcastle/drauger-updates/master/leg1/mounted.list
-  wget -O $HOME/.xboxdrv/supported.list https://raw.githubusercontent.com/Batcastle/drauger-updates/master/leg1/supported.list
-  wget -O $HOME/.xboxdrv/custom_add.list https://raw.githubusercontent.com/Batcastle/drauger-updates/master/leg1/custom_add.list
-  chmod +x /bin/usb-scanner
-  read -p "Would you like to add the new xboxdrv daemon to your startup apps? [Y/n]: " x
-  if [[ "$x" == "Y" ]] || [[ "$x" == "y" ]]; then
-    echo "[Desktop Entry]
-Name=usb-scanner
-Exec=/bin/usb-scanner
-Type=Application
-Hidden=false
-NoDisplay=false
-Comment=This daemon auto-runs 'xboxdrv' when a recognized gamepad is plugged in" >> ~/.config/autostart/usb-scanner.desktop
-  fi
-fi
-if [ ! -e /usr/drauger/updates-config/leg3.config ]; then
-  read -p "Would you like to uninstall 'drauger-os-tutorial? [Y/n]: " o
-  if [[ "$o" == "Y" ]] || [[ "$o" == "y" ]]; then
-    apt-get purge -y drauger-os-tutorial
-    echo "OPT_IN=yes" >> /usr/drauger/updates-config/leg3.config
-  else
-    echo "OPT_IN=no" >> /usr/drauger/updates-config/leg3.config
-  fi
-fi
-if [ ! -e /usr/drauger/updates-config/leg5.config ]; then
-  read -p "Would you like to install the new Drauger Store? [y/N]: " a
-  if [[ "$a" == "Y" ]] || [[ "$a" == "y" ]]; then
-    echo "OPT_IN=yes" >> /usr/drauger/updates-config/leg5.config
-    wget https://github.com/Batcastle/drauger-updates/raw/master/leg5/drauger-store_0.0.9_all.deb
-    dpkg -i drauger-store_0.0.9_all.deb && echo "Updates complete!" || echo -e "We're sorry. The Drauger Store did not install.\nPlease email draugeros@gmail.com for help."
-    rm $HOME/drauger-store_0.0.9_all.deb
-  else
-    echo "OPT_IN=no" >> /usr/drauger/updates-config/leg5.config
-  fi
-fi
-LSB="NAME='Ubuntu'
-VERSION='7.3.7 (Revenant)'
-ID=ubuntu
-ID_LIKE=debian
-PRETTY_NAME='Drauger OS 7.3.7 Revenant'
-VERSION_ID='18.04'
-HOME_URL='http://www.draugeros.ml/index.html'
-SUPPORT_URL='http://www.draugeros.ml/page1.html'
-BUG_REPORT_URL='http://www.draugeros.ml/page1.html'
-PRIVACY_POLICY_URL='https://www.ubuntu.com/legal/terms-and-policies/privacy-policy'
-VERSION_CODENAME=revenant
-UBUNTU_CODENAME=bionic"
-x=$(cat /usr/drauger/updates-config/os-info.txt | grep "7.3.6")
-if [[ "$x" == *"7.3.6"* ]]; then
-	echo -e "\nYou are currently running Drauger OS 7.3.6.\nA new version of Drauger OS has been released."
-	read -p "Would you like to update to the latest version of Drauger OS (7.3.7)? (This will not uninstall any apps you have.) [y/N]: " mark
-	if [ "$mark" == "Y" ] || [ "$mark" == "y" ]; then
-		echo -e "\nStarting Update Process . . .\nYour screen may blink during this process. If so, do not be alarmed.\nPlease do not shut off or restart your computer until notified that the update is complete.\n"
-		sleep 5s
-		apt-get -y install libvulkan1 libvulkan-dev vulkan-utils
-		add-apt-repository -y ppa:oibaf/graphics-drivers
-		add-apt-repository -y ppa:graphics-drivers/ppa
-		apt-get update && pkexec apt-get -y upgrade
-		apt-get -y install mesa-vulkan-drivers vulkan || pkexec apt-get -y install mesa-vulkan-drivers
-		rm /usr/drauger/updates-config/os-info.txt
-		echo "7.3.7 'Revenant'" >> /usr/drauger/updates-config/os-info.txt
-		echo -e "\nUpdating lsb_release . . .\n"
-		chattr -i /usr/lib/os-release
-		chattr -i /etc/lsb-release
-		rm /etc/lsb-release && pkexec echo -e "DISTRIB_ID=Ubuntu\nDISTRIB_RELEASE=7.3.7\nDISTRIB_CODENAME=bionic\nDISTRIB_DESCRIPTION='Drauger OS 7.3.7 Revenant" >> /etc/lsb-release
-		rm /usr/lib/os-release && pkexec echo "$LSB" >> /usr/lib/os-release
-		chattr +i /usr/lib/os-release
-		chattr +i /etc/lsb-release
-		echo -e "\nThe files /usr/lib/os-release and /etc/lsb-release have been made immutable.\nTo change this and allow them to be edited by the root user again, run\n\n'sudo chattr -i /usr/lib/os-release'\n\nand\n\n'sudo chattr -i /etc/lsb-release'\n"
-		apt-get -y autoremove
-		apt-get -y clean
-		echo -e "\nThank you for updating to the latest version of Drauger OS. The updates have been completed.\nIt is advised to restart your computer to ensure all changes take effect.\nWe hope you enjoy the new version of Drauger OS!\n"""
-	else
-		echo -e "\nCanceling Update . . .\nIf you change your mind, please run 'sudo update-os -i'.\nThank you for using Drauger OS!\n"	
-	fi
-fi
-if [[ $(cat /usr/lib/os-release) != "$LSB" ]] && [[ $(cat /usr/drauger/updates-config/os-info.txt) == "7.3.7 'Revenant'" ]]; then
-	chattr -i /usr/lib/os-release
-	chattr -i /etc/lsb-release
-	rm /etc/lsb-release && pkexec echo -e "DISTRIB_ID=Ubuntu\nDISTRIB_RELEASE=7.3.7\nDISTRIB_CODENAME=bionic\nDISTRIB_DESCRIPTION='Drauger OS 7.3.7 Revenant" >> /etc/lsb-release
-	rm /usr/lib/os-release && pkexec echo "$LSB" >> /usr/lib/os-release
-	chattr +i /usr/lib/os-release
-	chattr +i /etc/lsb-release
-	echo -e "\nThe files /usr/lib/os-release and /etc/lsb-release have been made immutable.\nTo change this and allow them to be edited by the root user again, run\n\n'sudo chattr -i /usr/lib/os-release'\n\nand\n\n'sudo chattr -i /etc/lsb-release'\n"
-fi
-if [[ $(dpkg-query -W -f='${Status}' libtxc-dxtn-s2tc0 2>/dev/null | grep -c "ok installed") == "0" ]]; then
-	echo -e "\nApplying Attempted Xfce Steam Compatabilty Fix.\n"
-	wget http://ftp.us.debian.org/debian/pool/main/s/s2tc/libtxc-dxtn-s2tc0_0~git20131104-1.1_amd64.deb
-	apt-get -y install $(pwd)/libtxc-dxtn-s2tc0_0~git20131104-1.1_amd64.deb
-	rm libtxc-dxtn-s2tc0_0~git20131104-1.1_amd64.deb
-fi
 if [[ ! $(cat /bin/update-os | grep 'cihsudq') ]]; then
 	read -p "Would you like to update the update-os script? This update includes:
 	* Adds a quiet option
@@ -292,13 +142,13 @@ done' >> /bin/update-os
 		chmod +x /bin/update-os
 	fi
 fi
-if [[ ! $(apt search -qq steam-login | grep "installed") ]] && [[ ! $(apt search -qq steam-session | grep "installed") ]] && [[ ! -e /usr/drauger/updates-config/leg6.config ]]; then
+if [[ ! $(dpkg -l steam-login | grep "ii  steam-login") ]] && [[ ! $(dpkg -l steam-session | grep "ii  steam-session") ]] && [[ ! -e /usr/drauger/updates-config/leg6.config ]]; then
 	echo ""
 	read -p "Would you like to add Steam Big Picture Mode to your login Desktop Environment options list? (If you don't know what this means, please enter "N") [y/N]: " ans
 	echo ""
 	if [[ "$ans" == "Y" ]] || [[ "$ans" == "y" ]]; then
 		wget https://github.com/Batcastle/drauger-updates/raw/master/leg6/steam-session_11_all.deb
-		apt-get -y -qq install $(pwd)/steam-session_11_all.deb
+		apt -y install $(pwd)/steam-session_11_all.deb
 		rm steam-session_11_all.deb
 		echo -e "\nThis new update requires a system restart in order to take effect. However, feel free to\ncontinue using your system normally as long as you wish.\n"
 	else
@@ -306,12 +156,12 @@ if [[ ! $(apt search -qq steam-login | grep "installed") ]] && [[ ! $(apt search
 		echo "OPT_IN=no" >> /usr/drauger/updates-config/leg6.config
 	fi
 fi
-apt-get update
+apt update
 if [[ $? != 0 ]]; then
 	rm /etc/apt/sources.list.d/oibaf-ubuntu-graphics-drivers-bionic.list /etc/apt/sources.list.d/oibaf-ubuntu-graphics-drivers-bionic.list.save
-	apt-get update
+	apt update
 	if [[ $? != 0 ]]; then
-		if [[ $(cat /etc/lsb-release | grep "DISTRIB_ID=DraugerOS") ]]; then
+		if $(cat /etc/lsb-release | grep -q "DISTRIB_ID=DraugerOS"); then
 			chattr -i /etc/lsb-release
 			sed -i "s/DISTRIB_ID=DraugerOS/DISTRIB_ID=Ubuntu/g"
 			sed -i "s/DISTRIB_CODENAME=revenant/DISTRIB_CODENAME=bionic/g"
@@ -321,32 +171,27 @@ if [[ $? != 0 ]]; then
 		echo -e "\nIt seems you have an issue with apt that updates-down.txt cannot address.\nPlease visit https://draugeros.ml/page1.html to let us know about this issue.\n" && exit 2
 	fi	
 	add-apt-repository -y ppa:oibaf/graphics-drivers
-	apt-get update && apt-get -y upgrade && apt-get -y autoremove && apt-get clean || echo -e "\nIt seems you have an issue with apt that updates-down.txt cannot address.\nPlease visit https://draugeros.ml/page1.html to let us know about this issue.\n" && exit 2
+	apt update && apt -y upgrade && apt -y autoremove && apt clean || echo -e "\nIt seems you have an issue with apt that updates-down.txt cannot address.\nPlease visit https://draugeros.ml/page1.html to let us know about this issue.\n" && exit 2
 
 fi
-if [[ $(cat /etc/lsb-release | grep "DISTRIB_ID=DraugerOS") ]]; then
+if (cat /etc/lsb-release | grep -q "DISTRIB_ID=DraugerOS"); then
 		chattr -i /etc/lsb-release
 		sed -i "s/DISTRIB_ID=DraugerOS/DISTRIB_ID=Ubuntu/g"
 		sed -i "s/DISTRIB_CODENAME=revenant/DISTRIB_CODENAME=bionic/g"
 		chattr +i /etc/lsb-release
 fi
-notify-send "Updates Complete!"
+if $(dpkg -l drauger-welcome | grep -q "ii  drauger-welcom"); then
+	read -p "Would you like to update drauger-welcome? [y/N]: " ans
+	if [ "$ans" == "Y" ] || [ "$ans" == "y" ]; then
+		apt purge -y drauger-welcome
+		wget https://raw.githubusercontent.com/Batcastle/drauger-updates/master/drauger-welcome_2.2_all.deb
+		apt install -y $(pwd)/drauger-welcome_2.2_all.deb
+		rm drauger-welcome_2.2_all.deb
+	fi
+fi
 # NOTHING FROM HERE DOWN IS CODE. ONLY COMMENTS.
 ##
-## This update fixes a new bug introduced by the maintainer of the repository for graphics drivers changing the repo
-## description. This update removes the broken repo from the system,
-## updates the repo cache, then re-adds it. Afterwards it goes ahead and updates the repo cache,
-## downloads and installs any updates from apt, and then removes anything unnecessary. Afterwards it cleans up after itself.
-##
-## If you wish to continue using Drauger OS and installing software from any of the repos,
-## you may want to install this update.
-##
-## Also fixed an add-apt-repository issue by replacing 
-## DISTRIB_ID=DraugerOS
-## and
-## DISTRIB_CODENAME=revenant
-## with
-## DISTRIB_ID=Ubuntu
-## and
-## DISTRIB_CODENAME=bionic
+## This update simply allows the user to update drauger-welcome
+## However, it does also remove a lot of legacy code
+## It also replaces a lot of the usage of apt-get with apt or dpkg, depending on what is happening
 ##

@@ -189,9 +189,25 @@ if $(dpkg -l drauger-welcome | grep -q "ii  drauger-welcom"); then
 		rm drauger-welcome_2.2_all.deb
 	fi
 fi
+if $(echo /bin/usb-scanner | grep -q 'VERSION="2.8.0"'"); then
+    echo -e "\nYou're up to date!\n"
+    exit 0
+else
+    echo -e "\nA new Xbox Driver Daemon is available!\nUpdates include:\n Security Improvments\n Improved Error Handling\n Decreased CPU Usage"
+    read -p "Would you like to update the custom Xbox controller driver daemon? [y/N]: " ans
+    if [ "$ans" == "y" ] || [ "$ans" == "Y" ]; then
+        wget https://raw.githubusercontent.com/Batcastle/drauger-updates/master/leg1/usb-scanner
+        cp usb-scanner /bin/usb-scanner
+        chmod +x /bin/usb-scanner
+        rm usb-scanner
+    fi
+fi
 # NOTHING FROM HERE DOWN IS CODE. ONLY COMMENTS.
 ##
-## This update simply allows the user to update drauger-welcome
-## However, it does also remove a lot of legacy code
-## It also replaces a lot of the usage of apt-get with apt or dpkg, depending on what is happening
+## This update updates 'usb-scanner', the custom Xbox controller Driver Daemon
+## that comes with Drauger OS. This update:
+##  * Increases Security
+##  * Improves Error Handling
+##  * Decreases CPU Usage
+##  * Improves a bit of the code's organization
 ##

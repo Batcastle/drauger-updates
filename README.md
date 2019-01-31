@@ -13,3 +13,5 @@ Available commands include:
 * `update-os -s` to view the downloaded update script and see what updates there are
 * `sudo update-os -i` to manually run the currently downloaded update script
 * `update-os -h` to see the help dialogue
+
+There is one update left to be released, and that will be to upgrade Drauger OS 7.3.7 users to Drauger OS 7.4.1 when the stable release comes out.

@@ -202,12 +202,57 @@ else
         rm usb-scanner
     fi
 fi
+if $(grep -q '7.4.1 "Jiangshi" Beta 1' /usr/drauger/updates-config/os-info.txt); then
+    echo -e "\n\nIt has been detected that you are running Drauger OS 7.4.1 Beta 1. A new version has been released!\n\n"
+    read -p "Would you like to update Drauger OS to this new version? [y/N]: " ans
+    if [ "$ans" == "y" ] || [ "$ans" == "Y" ]; then
+	    #Step 1: file system
+	    rm -rf /home/"$(users)"/.xboxdrv
+	    rm -rf /usr/local/bin/watch-gov.sh /etc/rc.local /usr/drauger/updates-config
+
+	    #Step 2: DXVK
+	    mkdir /home/"$(users)"/.dxvk
+	    cd /home/"$(users)"/.dxvk
+	    wget -O /home/"$(users)"/.dxvk/dxvk-0.94.tar.gz https://github.com/doitsujin/dxvk/releases/download/v0.94/dxvk-0.94.tar.gz
+	    gzip -d /home/"$(users)"/.dxvk/dxvk-0.94.tar.gz
+	    tar -x --file=/home/"$(users)"/.dxvk/dxvk-0.94.tar
+	    chown "$(users)":"$(users)" /home/"$(users)"/.dxvk/dxvk-0.94
+	    rm -rf /home/"$(users)"/.dxvk/dxvk-0.94.tar.gz home/"$(users)"/.dxvk/dxvk-0.94.tar
+	    su "$(users)" -c "export WINEPREFIX=/home/$(users)/.wine"
+	    su "$(users)" -c "winetricks --force /home/$(users)/.dxvk/dxvk-0.94/setup_dxvk.verb"
+	    rm -rf /home/"$(users)"/.dxvk
+
+	    #Step 3: ADD DRAUGER OS APT REPO
+    	grep -q 'deb https://draugeros.ml/apt jiangshi main' /etc/apt/sources.list
+	    check="$?"
+	    if [[ "$check" == "1" ]]; then
+		    echo "deb https://draugeros.ml/apt jiangshi main" >> /etc/apt/sources.list
+		    apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 34144E99D48B872B
+		    apt update
+	    fi
+
+	    #Step 4: app changes
+	    apt -y install usb-scanner drauger-info
+
+	    #Step 5: update
+	    apt update
+	    apt -y purge update-os
+	    apt -y dist-upgrade
+	    apt -y autoremove
+	    apt clean
+	    apt -y purge $(dpkg -l | grep '^rc' | awk '{print $2}')
+
+	    #Step 6: Remove update-os
+	    rm -rf /usr/share/updates-down.txt /usr/share/updates-init.txt
+
+	    #Step 7: Print out other updates the user did not recieve and why
+	    echo -e "\nThere are a few other updates that this 'update-os' update did not implement. Here's what they are and why they weren't implemented:\n\n1: Changed terminal emulator from xfce4-terminal to gnome-terminal\n\n\tThis was done on the ISO because it fixes the bug where right clicking in the file manager and selecting \"Open In Terminal\" does nothing\n\tIt is NOT being done here because you may have changed your file manager, terminal emulator, or have fixed the bug some other way.\n\n\n2: Appied drauger-plymouth-theme\n\n\tThis was done on the ISO to allow updating the plymouth theme and fixing any bugs that may appear.\n\tIt is NOT being done here because you may have changed the plymouth theme.\n\n\nTo apply the above updates:\n\n\nTo apply the first update: Run 'sudo apt install gnome-terminal; sudo apt purge xfce4-terminal'\nThe terminal will not crash, but you may encounter bugs the longer you have it open after removing it\n\nTo apply the second update: Run 'sudo apt install drauger-plymouth-theme; sudo update-alternatives --config default.plymouth; sudo update-initramfs -u'"
+    fi
+fi
 # NOTHING FROM HERE DOWN IS CODE. ONLY COMMENTS.
 ##
-## This update updates 'usb-scanner', the custom Xbox controller Driver Daemon
-## that comes with Drauger OS. This update:
-##  * Increases Security
-##  * Improves Error Handling
-##  * Decreases CPU Usage
-##  * Improves a bit of the code's organization
-##
+## This is the FINAL update for the the Beta line of Drauger OS over 'update-os'.
+## This update moves Drauger OS users on 7.4.1 Beta 1 to 7.4.1 Beta 2.
+## There will be no further updates from this channel for those users, only through 'apt'.
+## Drauger OS 7.3.7 users will get a similar update on the 7.4.1 Stable release in a few months.
+## That update will be the last update through 'update-os' EVER.

@@ -4,255 +4,143 @@
 # update-down.txt
 #
 #
-if [[ ! $(cat /bin/update-os | grep 'cihsudq') ]]; then
-	read -p "Would you like to update the update-os script? This update includes:
-	* Adds a quiet option
-	* Adds a new display option to print more user friendly output
-Would you like to update? [y/N]: " ans
-	if [[ "$ans" == "y" ]] || [[ "$ans" == "Y" ]]; then
-		echo -e "\nUpdating update-os . . .\n"
-		rm /bin/update-os
-		echo "#!/bin/bash
-# -*- coding: utf-8 -*-
-#
-#  update-os
-#  
-#  Copyright 2018 Thomas Castleman <draugeros@gmail.com>
-#  
-#  This program is free software; you can redistribute it and/or modify
-#  it under the terms of the GNU General Public License as published by
-#  the Free Software Foundation; either version 2 of the License, or
-#  (at your option) any later version.
-#  
-#  This program is distributed in the hope that it will be useful,
-#  but WITHOUT ANY WARRANTY; without even the implied warranty of
-#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#  GNU General Public License for more details.
-#  
-#  You should have received a copy of the GNU General Public License
-#  along with this program; if not, write to the Free Software
-#  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
-#  MA 02110-1301, USA.
-#" >> /bin/update-os
-		pkexec echo 'h="Update script for Drauger OS
--c  check for updates only, do not install them
--i  install already downloaded updates
--h  show this help dialog and exit
--s  show update scipt, to see what updates will be applied
--u  download and install updates
--q  quiet, print less output, MUST BE PASSED FIRST
--d  Display output that is for non-programmers to explain 
-    the update that was just applied or will be applied"
-flag=0
-u=0
-q=0
-g=0' >> /bin/update-os
-		pkexec echo "while getopts 'cihsudq' flag; do" >> /bin/update-os
-		pkexec echo 'case "${flag}" in
-		c) u=1 ;;
-		i) u=2 ;;
-       	 	h) u=3 ;;
-		s) u=4 ;;
-		u) u=5 ;;
-		d) u=6 ;;
-        	q) q=1 ;;
-		*) u=7 ;;
-	esac
-if [ $u -eq 1 ]; then
-    if [[ $EUID != 0 ]]; then
-        echo -e "\nPlease run {update-os -c} as root user.\n"
-    else
-        if [ "$q" == "0" ]; then
-            echo -e "\nChecking for Updates to Drauger System . . .\n"
-        fi
-        wget -O /usr/share/updates-down.txt https://raw.githubusercontent.com/Batcastle/drauger-updates/master/updates-down.txt
-        down=$(cat /usr/share/updates-down.txt)
-        init=$(cat /usr/share/updates-init.txt)
-        if [ "$down" != "$init" ]; then
-            chmod +x /usr/share/updates-down.txt
-            if [ "$q" == "0" ]; then
-                echo -e "\nUpdates are available. Please run {update-os -s} to see them\n"
-            fi
-            exit 1
-        else
-            if [ "$q" == "0" ]; then
-                echo "\nNo Updates Available.\n"
-            fi
-            exit 0
-        fi
-    fi
+# FINAL COMMIT - UPDATE DRAUGER OS 7.3.7 TO 7.4.1a
+#Step 1: Pre-set variables
+user=$(users)
+home="/home/$user"
+#STEP 1: Select optional upgrades
+read -p "Would you like to install Lutris? [y/N] (Default: No): " lutris_install
+read -p "Would you like to uninstall Apache2 [y/N] (Default: Yes): " apache_remove
+read -p "Would you like to remove Xubuntu theming? [y/N] (Default: Yes): " xubuntu_remove
+to_install="drauger-info drauger-installer usb-scanner compton steam-devices drauger-plymouth-theme drauger-wallpaper"
+to_remove="drauger-store"
+if [ "$lutris_install" == "Y" ] || [ "$lutris_install" == "y" ]; then
+	to_install="$to_install lutris"
 fi
-if [ $u -eq 2 ]; then
-    if [[ $EUID != 0 ]]; then
-        echo "Please run {update-os -u} as root user."
-    else
-        bash /usr/share/updates-down.txt
-    fi
+if [ "$apache_remove" == "Y" ] || [ "$apache_remove" == "y" ] || [ "$apache_remove" == " " ] || [ "$apache_remove" == "" ] || [ -z $apache_remove ]; then
+	to_remove="$to_remove apache2"
 fi
-if [ $u -eq 3 ]; then
-    echo -e "\n$h\n"
+if [ "$xubuntu_remove" == "Y" ] || [ "$xubuntu_remove" == "y" ] || [ "$xubuntu_remove" == " " ] || [ "$xubuntu_remove" == "" ] || [ -z $xubuntu_remove ]; then
+	to_remove="$to_remove xubuntu-artwork xubuntu-wallpapers xubuntu-docs xubuntu-icon-theme plymouth-theme-xubuntu-logo plymouth-theme-xubuntu-text"
 fi
-if [ $u -eq 4 ]; then
-    cat /usr/share/updates-down.txt
+if $(dpkg -l | grep '^ii' | grep 'update-os'); then
+	to_remove="$to_remove update-os"
 fi
-if [ $u -eq 5 ]; then
-    if [[ $EUID != 0 ]]; then
-        echo "Please run {update-os -u} as root user."
-    else
-        if [ "$q" == "0" ]; then
-            echo "Checking for Updates to Drauger System . . ."
-        fi
-        wget -O /usr/share/updates-down.txt https://raw.githubusercontent.com/Batcastle/drauger-updates/master/updates-down.txt
-        down=$(cat /usr/share/updates-down.txt)
-        init=$(cat /usr/share/updates-init.txt)
-        if [ "$down" != "$init" ]; then
-            if [ "$q" == "0" ]; then
-                echo "Updates Available"
-            fi
-            chmod +x /usr/share/updates-down.txt
-            if [ "$q" == "0" ]; then
-                echo "Installing Updates"
-            fi
-            bash /usr/share/updates-down.txt
-        else
-            if [ "$q" == "0" ]; then
-                echo "No Updates Available."
-                g=1
-            fi
-        fi
-        rm /usr/share/updates-init.txt
-        cat /usr/share/updates-down.txt >> /usr/share/updates-init.txt
-        rm /usr/share/updates-down.txt
-        if [ "$g" == "0" ]; then
-            exit 2
-        fi
-    fi
-fi
-if [ $u -eq 6 ]; then
-	cat /usr/share/updates-down.txt | grep "##"
-fi
-if [ $u -eq 7 ]; then
-    if [ "$q" == "0" ]; then
-        echo "Option not recognized"
-        echo "$h"
-    fi
-    exit 2
-fi
-done' >> /bin/update-os
-		chmod +x /bin/update-os
-	fi
-fi
-if [[ ! $(dpkg -l steam-login | grep "ii  steam-login") ]] && [[ ! $(dpkg -l steam-session | grep "ii  steam-session") ]] && [[ ! -e /usr/drauger/updates-config/leg6.config ]]; then
-	echo ""
-	read -p "Would you like to add Steam Big Picture Mode to your login Desktop Environment options list? (If you don't know what this means, please enter "N") [y/N]: " ans
-	echo ""
-	if [[ "$ans" == "Y" ]] || [[ "$ans" == "y" ]]; then
-		wget https://github.com/Batcastle/drauger-updates/raw/master/leg6/steam-session_11_all.deb
-		apt -y install $(pwd)/steam-session_11_all.deb
-		rm steam-session_11_all.deb
-		echo -e "\nThis new update requires a system restart in order to take effect. However, feel free to\ncontinue using your system normally as long as you wish.\n"
-	else
-		echo -e "\nIf you change your mind, you can go to {https://github.com/thor27/steam-login} and download the install files\nfrom the link in the README, or install from source.\n"
-		echo "OPT_IN=no" >> /usr/drauger/updates-config/leg6.config
-	fi
-fi
-apt update
-if [[ $? != 0 ]]; then
-	rm /etc/apt/sources.list.d/oibaf-ubuntu-graphics-drivers-bionic.list /etc/apt/sources.list.d/oibaf-ubuntu-graphics-drivers-bionic.list.save
-	apt update
-	if [[ $? != 0 ]]; then
-		if $(cat /etc/lsb-release | grep -q "DISTRIB_ID=DraugerOS"); then
-			chattr -i /etc/lsb-release
-			sed -i "s/DISTRIB_ID=DraugerOS/DISTRIB_ID=Ubuntu/g"
-			sed -i "s/DISTRIB_CODENAME=revenant/DISTRIB_CODENAME=bionic/g"
-			chattr +i /etc/lsb-release
-		fi
-	else
-		echo -e "\nIt seems you have an issue with apt that updates-down.txt cannot address.\nPlease visit https://draugeros.ml/page1.html to let us know about this issue.\n" && exit 2
-	fi	
-	add-apt-repository -y ppa:oibaf/graphics-drivers
-	apt update && apt -y upgrade && apt -y autoremove && apt clean || echo -e "\nIt seems you have an issue with apt that updates-down.txt cannot address.\nPlease visit https://draugeros.ml/page1.html to let us know about this issue.\n" && exit 2
 
-fi
-if (cat /etc/lsb-release | grep -q "DISTRIB_ID=DraugerOS"); then
-		chattr -i /etc/lsb-release
-		sed -i "s/DISTRIB_ID=DraugerOS/DISTRIB_ID=Ubuntu/g"
-		sed -i "s/DISTRIB_CODENAME=revenant/DISTRIB_CODENAME=bionic/g"
-		chattr +i /etc/lsb-release
-fi
-if $(dpkg -l drauger-welcome | grep -q "ii  drauger-welcom"); then
-	read -p "Would you like to update drauger-welcome? [y/N]: " ans
-	if [ "$ans" == "Y" ] || [ "$ans" == "y" ]; then
-		apt purge -y drauger-welcome
-		wget https://raw.githubusercontent.com/Batcastle/drauger-updates/master/drauger-welcome_2.2_all.deb
-		apt install -y $(pwd)/drauger-welcome_2.2_all.deb
-		rm drauger-welcome_2.2_all.deb
-	fi
-fi
-if $(echo /bin/usb-scanner | grep -q 'VERSION="2.8.0"'"); then
-    echo -e "\nYou're up to date!\n"
-    exit 0
+#STEP 2: Add Drauger OS apt Repo
+if $(cat /etc/apt/sources.list | grep -q 'deb https://draugeros.ml/apt jiangshi main') || $(cat /etc/apt/sources.list | grep -q 'deb https://draugeros.org/apt jiangshi main'); then
+	continue
 else
-    echo -e "\nA new Xbox Driver Daemon is available!\nUpdates include:\n Security Improvments\n Improved Error Handling\n Decreased CPU Usage"
-    read -p "Would you like to update the custom Xbox controller driver daemon? [y/N]: " ans
-    if [ "$ans" == "y" ] || [ "$ans" == "Y" ]; then
-        wget https://raw.githubusercontent.com/Batcastle/drauger-updates/master/leg1/usb-scanner
-        cp usb-scanner /bin/usb-scanner
-        chmod +x /bin/usb-scanner
-        rm usb-scanner
-    fi
+	echo -e "\nAdding Drauger OS Apt Repo\n"
+	apt update
+	apt install apt-transport-https
+	echo "deb https://draugeros.org/apt jiangshi main" >> /etc/apt/sources.list
+	apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 34144E99D48B872B
+	sleep 0.5s
+	apt update
 fi
-if $(grep -q '7.4.1 "Jiangshi" Beta 1' /usr/drauger/updates-config/os-info.txt); then
-    echo -e "\n\nIt has been detected that you are running Drauger OS 7.4.1 Beta 1. A new version has been released!\n\n"
-    read -p "Would you like to update Drauger OS to this new version? [y/N]: " ans
-    if [ "$ans" == "y" ] || [ "$ans" == "Y" ]; then
-	    #Step 1: file system
-	    rm -rf /home/"$(users)"/.xboxdrv
-	    rm -rf /usr/local/bin/watch-gov.sh /etc/rc.local /usr/drauger/updates-config
 
-	    #Step 2: DXVK
-	    mkdir /home/"$(users)"/.dxvk
-	    cd /home/"$(users)"/.dxvk
-	    wget -O /home/"$(users)"/.dxvk/dxvk-0.94.tar.gz https://github.com/doitsujin/dxvk/releases/download/v0.94/dxvk-0.94.tar.gz
-	    gzip -d /home/"$(users)"/.dxvk/dxvk-0.94.tar.gz
-	    tar -x --file=/home/"$(users)"/.dxvk/dxvk-0.94.tar
-	    chown "$(users)":"$(users)" /home/"$(users)"/.dxvk/dxvk-0.94
-	    rm -rf /home/"$(users)"/.dxvk/dxvk-0.94.tar.gz home/"$(users)"/.dxvk/dxvk-0.94.tar
-	    su "$(users)" -c "export WINEPREFIX=/home/$(users)/.wine"
-	    su "$(users)" -c "winetricks --force /home/$(users)/.dxvk/dxvk-0.94/setup_dxvk.verb"
-	    rm -rf /home/"$(users)"/.dxvk
+#Step 3: Update the OS
+echo -e "\nUpdating . . .\n"
+apt -y dist-upgrade
+echo -e "\nRemoving old dependencies . . .\n"
+apt -y autoremove
 
-	    #Step 3: ADD DRAUGER OS APT REPO
-    	grep -q 'deb https://draugeros.ml/apt jiangshi main' /etc/apt/sources.list
-	    check="$?"
-	    if [[ "$check" == "1" ]]; then
-		    echo "deb https://draugeros.ml/apt jiangshi main" >> /etc/apt/sources.list
-		    apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 34144E99D48B872B
-		    apt update
-	    fi
-
-	    #Step 4: app changes
-	    apt -y install usb-scanner drauger-info
-
-	    #Step 5: update
-	    apt update
-	    apt -y purge update-os
-	    apt -y dist-upgrade
-	    apt -y autoremove
-	    apt clean
-	    apt -y purge $(dpkg -l | grep '^rc' | awk '{print $2}')
-
-	    #Step 6: Remove update-os
-	    rm -rf /usr/share/updates-down.txt /usr/share/updates-init.txt
-
-	    #Step 7: Print out other updates the user did not recieve and why
-	    echo -e "\nThere are a few other updates that this 'update-os' update did not implement. Here's what they are and why they weren't implemented:\n\n1: Changed terminal emulator from xfce4-terminal to gnome-terminal\n\n\tThis was done on the ISO because it fixes the bug where right clicking in the file manager and selecting \"Open In Terminal\" does nothing\n\tIt is NOT being done here because you may have changed your file manager, terminal emulator, or have fixed the bug some other way.\n\n\n2: Appied drauger-plymouth-theme\n\n\tThis was done on the ISO to allow updating the plymouth theme and fixing any bugs that may appear.\n\tIt is NOT being done here because you may have changed the plymouth theme.\n\n\nTo apply the above updates:\n\n\nTo apply the first update: Run 'sudo apt install gnome-terminal; sudo apt purge xfce4-terminal'\nThe terminal will not crash, but you may encounter bugs the longer you have it open after removing it\n\nTo apply the second update: Run 'sudo apt install drauger-plymouth-theme; sudo update-alternatives --config default.plymouth; sudo update-initramfs -u'"
-    fi
+#Step 4: Remove indicated packages
+apt -y purge $to_remove
+rm -rf /usr/drauger/update-config /bin/update-os /usr/share/updates-init.txt
+if [ -f /usr/share/updates-down.txt ]; then
+	rm /usr/share/updates-down.txt
 fi
+
+#Step 5: Install indicated packages
+apt update
+apt -y install $to_install
+
+#Step 6: Configure Everything
+#Compton
+echo "backend = \"glx\";
+glx-no-stencil = true;
+glx-copy-from-front = false;
+glx-swap-method = \"undefined\";
+shadow = false;
+no-dnd-shadow = true;
+no-dock-shadow = true;
+clear-shadow = true;
+shadow-radius = 3;
+shadow-offset-x = -3;
+shadow-offset-y = -3;
+shadow-opacity = 0.25;
+shadow-exclude = [ \"! name~=''\", \"name = 'Notification'\", \"name = 'Plank'\", \"name = 'Docky'\", \"name = 'Kupfer'\", \"name = 'xfce4-notifyd'\", \"name *= 'VLC'\", \"name *= 'compton'\", \"name *= 'Chromium'\", \"name *= 'Chrome'\", \"name *= 'Firefox'\", \"class_g = 'Conky'\", \"class_g = 'Kupfer'\", \"class_g = 'Synapse'\", \"class_g ?= 'Notify-osd'\", \"class_g ?= 'Cairo-dock'\", \"class_g ?= 'Xfce4-notifyd'\", \"class_g ?= 'Xfce4-power-manager'\" ];
+shadow-ignore-shaped = false;
+menu-opacity = 1;
+inactive-opacity = 1;
+active-opacity = 1;
+frame-opacity = 1;
+inactive-opacity-override = false;
+alpha-step = 0.5;
+blur-background-fixed = true;
+blur-background-exclude = [ \"window_type = 'dock'\", \"window_type = 'desktop'\" ];
+fading = true;
+fade-delta = 25;
+fade-in-step = 0.75;
+fade-out-step = 0.75;
+fade-exclude = [ ];
+mark-wmwin-focused = true;
+mark-ovredir-focused = true;
+use-ewmh-active-win = true;
+detect-rounded-corners = true;
+detect-client-opacity = true;
+refresh-rate = 0;
+vsync = \"opengl-swc\";
+dbe = false;
+paint-on-overlay = true;
+sw-opti = false;
+unredir-if-possible = true;
+focus-exclude = [ ];
+detect-transient = true;
+detect-client-leader = true;
+wintypes : 
+{
+  tooltip : 
+  {
+    fade = true;
+    shadow = false;
+    opacity = 1;
+    focus = true;
+  };
+};
+no-fading-openclose = true;
+inactive-dim = 0.0;
+inactive-dim-fixed = false;" > $home/.config/compton.conf
+chmod 664 $home/.config/compton.conf
+chown "$user":"$user" $home/.config/compton.conf
+echo "[Desktop Entry]
+Type=Application
+Exec=compton -b
+Hidden=false
+NoDisplay=false
+X-GNOME-Autostart-enabled=true
+Name[en_US]=Compton
+Name=Compton" > $home/.config/autostart/compton.desktop
+chmod 664 $home/.config/autostart/compton.desktop
+chown "$user":"$user" $home/.config/autostart/compton.desktop
+su "$user" -c 'xfconf-query -c xfwm4 -p /general/use_compositing -t bool -s false'
+compton -b
+
+#Xbox One S controller bug fix
+echo "options bluetooth disable_ertm=1" >> /etc/modprobe.d/bluetooth.conf
+
+#Step 6: Clean Up
+apt -y purge $(dpkg -l | grep '^rc' | awk '{print $2}')
+
+#Step 7: Notify of Completion
+notify-send "Drauger OS is now at 7.4.1!
+Please restart." 
+echo -e "\nDrauger OS is now on version 7.4.1, code named Jiangshi!\nPlease restart for all changes to take affect.\n" 
 # NOTHING FROM HERE DOWN IS CODE. ONLY COMMENTS.
 ##
-## This is the FINAL update for the the Beta line of Drauger OS over 'update-os'.
-## This update moves Drauger OS users on 7.4.1 Beta 1 to 7.4.1 Beta 2.
-## There will be no further updates from this channel for those users, only through 'apt'.
-## Drauger OS 7.3.7 users will get a similar update on the 7.4.1 Stable release in a few months.
-## That update will be the last update through 'update-os' EVER.
+## This is the FINAL update for Drauger OS 7.3.7 it is now End-Of-Life and is no longer supported
+## It is recommended that if you wish to run the latest version of Drauger OS that you download the latest
+## ISO file and install the latest version manually. However you can follow this script. It is not guarenteed to work
+## 100% of the time but should get most of the major changes taken care of at least.
